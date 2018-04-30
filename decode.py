@@ -54,7 +54,6 @@ def decode_soft(X, H):
             if H[i, j] == 1:
                 tmp.append(X[j][0])
         v_to_c.append(tmp)
-    print("v_to_c", v_to_c)
     for it in range(0, 10):
         c_to_v = [[] for _ in range(H.shape[1])]
         for i in range(0, H.shape[0]):
@@ -66,7 +65,11 @@ def decode_soft(X, H):
 
             tmp = []
             for j in v_to_c[i]:
-                tmp.append(signpro / math.copysign(1, j) * 2 * math.atanh(tanpro / math.tanh(math.fabs(j) / 2)))
+                try:
+                    val = math.atanh(tanpro / math.tanh(math.fabs(j) / 2))
+                except ValueError:
+                    val = 100
+                tmp.append(signpro / math.copysign(1, j) * 2 * val)
             j = 0
 
             for k in range(0, H.shape[1]):
@@ -74,8 +77,10 @@ def decode_soft(X, H):
                     c_to_v[k].append(tmp[j])
                     j += 1
         v_to_c = [[] for _ in range(H.shape[0])]
+        L = numpy.zeros(X.shape)
         for i in range(0, H.shape[1]):
             su = sum(c_to_v[i]) + X[i][0]
+            L[i][0] = su
             tmp = []
             for j in c_to_v[i]:
                 tmp.append(su - j)
@@ -85,8 +90,7 @@ def decode_soft(X, H):
                 if H[k, i] == 1:
                     v_to_c[k].append(tmp[j])
                     j += 1
-        print(v_to_c)
-
+    return 1*(L < 0)
 
 
 
