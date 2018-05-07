@@ -26,8 +26,8 @@ use IEEE.math_real.all;
 
 entity encoder is 
     port (clock : in std_logic;
-        bits_in : in std_logic_vector(" + in_width + "-1 downto 0);
-        bits_out : out std_logic_vector(" + out_width + "-1 downto 0)
+        bits_in : in std_logic_vector(""" + str(in_width) + """-1 downto 0);
+        bits_out : out std_logic_vector(""" + str(out_width) + """-1 downto 0)
     );
 end entity;
 
@@ -37,7 +37,7 @@ begin
 
 footer = "end architecture;"
 
-out_file = open("encoder.vhd", "w")
+out_file = open("vhdl/encoder.vhd", "w")
 
 out_file.write(header)
 
@@ -51,7 +51,8 @@ for i in range(0, G.shape[1]):
     else:
         line = " XOR ".join(tmp)
     line = "    bits_out(" + str(i) + ") <= " + line + ";\n"
-    print(line)
+    #print(line)
     out_file.write(line)
 
 out_file.write(footer)
+out_file.close()
