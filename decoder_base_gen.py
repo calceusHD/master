@@ -66,9 +66,9 @@ def generate_vns(v_to_c):
 def generate_signals(v_to_c, c_to_v):
     out = ""
     for i in range(0, len(v_to_c)):
-        out += "signal cn_in_" + str(i) + ", cn_out_" + str(i) + " : std_logic_vector(" + str(len(v_to_c[i]) - 1) + " downto 0);\n"
+        out += "signal cn_in_" + str(i) + ", cn_out_" + str(i) + " : std_logic_vector(0 to " + str(len(v_to_c[i]) - 1) + ");\n"
     for i in range(0, len(c_to_v)):
-        out += "signal vn_in_" + str(i) + ", vn_out_" + str(i) + " : std_logic_vector(" + str(len(c_to_v[i]) - 1) + " downto 0);\n"
+        out += "signal vn_in_" + str(i) + ", vn_out_" + str(i) + " : std_logic_vector(0 to " + str(len(c_to_v[i]) - 1) + ");\n"
     return out + "\n"
 
 def generate_connections(v_to_c, c_to_v):

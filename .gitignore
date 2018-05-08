@@ -7,6 +7,8 @@ vhdl/work
 
 # C extensions
 *.so
+*.o
+*.exe
 
 # Distribution / packaging
 .Python

@@ -9,7 +9,8 @@ architecture test of decoder_hard_tb is
 	signal message_in, decoded_out : std_logic_vector(15 downto 0);
 
 begin
-	message_in <= "1001010010000100" xor "1000000000000000";
+	--            message				 error vector
+	message_in <= "1001010010000100" xor "1000000000000001";
 
 	process
 	begin
