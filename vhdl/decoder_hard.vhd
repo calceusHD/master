@@ -6,8 +6,8 @@ entity decoder_hard is
 		load : in std_logic;
 		done : out std_logic;
 		err : out std_logic;
-		message_in : in std_logic_vector(15 downto 0);
-		decoded_out : out std_logic_vector(15 downto 0)
+		message_in : in std_logic_vector(0 to 15);
+		decoded_out : out std_logic_vector(0 to 15)
 	);
 end entity;
 
@@ -244,19 +244,19 @@ cn_in_7 <= (vn_out_2(1), vn_out_4(1), vn_out_12(1), vn_out_14(1));
 
 vn_in_0 <= (cn_out_0(0), cn_out_4(0));
 vn_in_1 <= (cn_out_1(0), cn_out_2(0));
-vn_in_2 <= (cn_out_0(0), cn_out_7(0));
+vn_in_2 <= (cn_out_0(1), cn_out_7(0));
 vn_in_3 <= (cn_out_3(0), cn_out_5(0));
-vn_in_4 <= (cn_out_3(0), cn_out_7(0));
-vn_in_5 <= (cn_out_1(0), cn_out_3(0));
-vn_in_6 <= (cn_out_2(0), cn_out_5(0));
-vn_in_7 <= (cn_out_4(0), cn_out_6(0));
-vn_in_8 <= (cn_out_0(0), cn_out_1(0));
-vn_in_9 <= (cn_out_2(0), cn_out_6(0));
-vn_in_10 <= (cn_out_1(0), cn_out_4(0));
-vn_in_11 <= (cn_out_0(0), cn_out_6(0));
-vn_in_12 <= (cn_out_5(0), cn_out_7(0));
-vn_in_13 <= (cn_out_4(0), cn_out_5(0));
-vn_in_14 <= (cn_out_6(0), cn_out_7(0));
-vn_in_15 <= (cn_out_2(0), cn_out_3(0));
+vn_in_4 <= (cn_out_3(1), cn_out_7(1));
+vn_in_5 <= (cn_out_1(1), cn_out_3(2));
+vn_in_6 <= (cn_out_2(1), cn_out_5(1));
+vn_in_7 <= (cn_out_4(1), cn_out_6(0));
+vn_in_8 <= (cn_out_0(2), cn_out_1(2));
+vn_in_9 <= (cn_out_2(2), cn_out_6(1));
+vn_in_10 <= (cn_out_1(3), cn_out_4(2));
+vn_in_11 <= (cn_out_0(3), cn_out_6(2));
+vn_in_12 <= (cn_out_5(2), cn_out_7(2));
+vn_in_13 <= (cn_out_4(3), cn_out_5(3));
+vn_in_14 <= (cn_out_6(3), cn_out_7(3));
+vn_in_15 <= (cn_out_2(3), cn_out_3(3));
 
 end architecture;

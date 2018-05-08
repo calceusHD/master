@@ -34,8 +34,8 @@ architecture hard of vn_hard is
 	end function;
 
 begin
-	vote_res <= do_vote(data_in & vote_res);
-	result <= vote_res;
+	vote_res <= do_vote(data_in & data_out_int);
+	result <= data_out_int;
 
 	process (clk)
 	begin

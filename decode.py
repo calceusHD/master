@@ -105,17 +105,17 @@ H = numpy.array([
         [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0]])
 
 
-#e = numpy.transpose(numpy.array([[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]]))
+e = numpy.transpose(numpy.array([[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]))
 X = numpy.transpose(numpy.array([[1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0]]))
 X_org = X.copy()
-e = numpy.random.standard_normal(X.shape) * 0.01
-X = ( X + e )
+#e = numpy.random.standard_normal(X.shape) * 0.01
+X = ( X + e ) % 2
 print(X)
 print(numpy.dot(H, X) % 2)
-#X = decode_hard(X, H)
-X = (1 - 2 * X) / (2 * 0.1)
-print(X)
-X = decode_soft(X, H)
+X = decode_hard(X, H)
+#X = (1 - 2 * X) / (2 * 0.1)
+##print(X)
+#X = decode_soft(X, H)
 print(X)
 
 print(numpy.array_equal(X, X_org))

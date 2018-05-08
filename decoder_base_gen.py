@@ -88,6 +88,7 @@ def generate_connections(v_to_c, c_to_v):
         tmp = []
         for j in range(0, len(c_to_v[i])):
             tmp.append("cn_out_" + str(c_to_v[i][j]) + "(" + str(use_counts[c_to_v[i][j]]) + ")")
+            use_counts[c_to_v[i][j]] += 1
         out += ", ".join(tmp) + ");\n"
     out += "\n"
     return out
@@ -105,8 +106,8 @@ entity decoder_hard is
 		load : in std_logic;
 		done : out std_logic;
 		err : out std_logic;
-		message_in : in std_logic_vector(""" + str(len(v_to_c) - 1) + """ downto 0);
-		decoded_out : out std_logic_vector(""" + str(len(v_to_c) - 1) + """ downto 0)
+		message_in : in std_logic_vector(0 to """ + str(len(v_to_c) - 1) + """);
+		decoded_out : out std_logic_vector(0 to """ + str(len(v_to_c) - 1) + """)
 	);
 end entity;
 

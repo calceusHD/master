@@ -9,19 +9,19 @@ architecture test of decoder_hard_tb is
 	signal message_in, decoded_out : std_logic_vector(15 downto 0);
 
 begin
-	message_in <= "1001010010000100";
+	message_in <= "1001010010000100" xor "1000000000000000";
 
 	process
 	begin
-		wait for 5 ns;
 		clk <= not clk;
+		wait for 5 ns;
 	end process;
 
 	process
 	begin
-		wait for 15 ns;
+		wait for 5 ns;
 		load <= '1';
-		wait for 10 ns;
+		wait for 20 ns;
 		load <= '0';
 		wait;
 	end process;
