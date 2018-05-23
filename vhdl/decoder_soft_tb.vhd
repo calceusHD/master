@@ -1,10 +1,10 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use work.soft_types.all;
-entity decoder_hard_tb is
+entity decoder_soft_tb is
 end entity;
 
-architecture test of decoder_hard_tb is
+architecture test of decoder_soft_tb is
 	signal clk, load, done, err : std_logic := '0';
 	signal decoded_out : std_logic_vector(15 downto 0);
 	signal message_in : llr_type_array(15 downto 0)(LLR_BITS-1 downto 0);

@@ -15,8 +15,10 @@ entity cn_soft is
 end entity;
 
 architecture soft of cn_soft is
+    signal sign_out : std_logic_vector(data_in'range);
 	function sign_llr_array(inp : llr_type_array) return std_logic_vector is
 		variable rv : std_logic_vector(inp'range);
+    begin
 		for i in inp'range loop
 			rv(i) := inp(i)(inp(i)'left);
 		end loop;
@@ -33,7 +35,7 @@ architecture soft of cn_soft is
 	end function;
 
 begin
-
+    sign_out <= sign_llr_array(data_in) xor (others => (xor sign_llr_array(data_in)));
 end architecture;
 	
 
