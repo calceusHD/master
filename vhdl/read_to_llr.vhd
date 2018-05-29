@@ -16,8 +16,8 @@ end entity;
 
 architecture binary_flash of read_to_llr is
     type real_array is array(N_IO-1 downto 0) of real;
-    signal in_scaled : real;
+    signal in_scaled : real_array;
 begin
-    in_scaled <= real(data_in);
+    in_scaled <= real(data_in) / MAX_IN;
 end architecture;
 

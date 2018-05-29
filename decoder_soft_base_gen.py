@@ -33,7 +33,7 @@ def matrix_to_conntection(H):
     return c_to_v, v_to_c
 
 def generate_cn(name, n_io):
-    return "check_node_" + str(name) + """ : entity work.cn_hard
+    return "check_node_" + str(name) + """ : entity work.cn_soft
     generic map (N_IO => """ + str(n_io) + """,
         LLR_BITS => LLR_BITS)
     port map (data_in => cn_in_""" + str(name) + """,
@@ -48,7 +48,7 @@ def generate_cns(c_to_v):
     return out
 
 def generate_vn(name, n_io):
-    return "variable_node_" + str(name) + """ : entity work.vn_hard
+    return "variable_node_" + str(name) + """ : entity work.vn_soft
     generic map (N_IO => """ + str(n_io) + """,
         LLR_BITS => LLR_BITS)
     port map (clk => clk,
@@ -68,9 +68,9 @@ def generate_vns(v_to_c):
 def generate_signals(v_to_c, c_to_v):
     out = ""
     for i in range(0, len(v_to_c)):
-        out += "signal cn_in_" + str(i) + ", cn_out_" + str(i) + " : llr_type_array(0 to " + str(len(v_to_c[i]) - 1) + ")(LLR_BITS-1 downto 0);\n"
+        out += "signal cn_in_" + str(i) + ", cn_out_" + str(i) + " : llr_type_array(0 to " + str(len(v_to_c[i]) - 1) + ");\n"
     for i in range(0, len(c_to_v)):
-        out += "signal vn_in_" + str(i) + ", vn_out_" + str(i) + " : llr_type_array(0 to " + str(len(c_to_v[i]) - 1) + ")(LLR_BITS-1 downto 0);\n"
+        out += "signal vn_in_" + str(i) + ", vn_out_" + str(i) + " : llr_type_array(0 to " + str(len(c_to_v[i]) - 1) + ");\n"
     return out + "\n"
 
 def generate_connections(v_to_c, c_to_v):
@@ -110,8 +110,8 @@ entity decoder_soft is
 		load : in std_logic;
 		done : out std_logic;
 		err : out std_logic;
-		message_in : in llr_type_array(0 to """ + str(len(v_to_c) - 1) + """)(LLR_BITS-1 downto 0);
-		decoded_out : out std_logic_vector(0 to """ + str(len(v_to_c) - 1) + """)(LLR_BITS-1 downto 0)
+		message_in : in llr_type_array(0 to """ + str(len(v_to_c) - 1) + """);
+		decoded_out : out std_logic_vector(0 to """ + str(len(v_to_c) - 1) + """)
 	);
 end entity;
 
