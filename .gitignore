@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 vhdl/work
+*.ghw
 
 # C extensions
 *.so
