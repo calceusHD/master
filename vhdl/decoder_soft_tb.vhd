@@ -10,20 +10,21 @@ architecture test of decoder_soft_tb is
 	signal decoded_out : std_logic_vector(15 downto 0);
 	signal message_in : std_logic_vector(15 downto 0);
     signal msg_to_decoder : llr_type_array(15 downto 0) := (others => (others => '0'));
-    signal error_vec : llr_type_array(15 downto 0);
+    signal error_vec : std_logic_vector(15 downto 0);
 
 begin
-	--            message				 error vector
-	message_in <= "1001010010000100" xor "0000000000000000";
-/*
-    error_vec <= (x"05", x"00", x"00", x"00",
-                 x"00", x"00", x"00", x"00",
-                 x"00", x"00", x"00", x"00",
-                 x"00", x"00", x"00", x"00");
+	--            message			
+	message_in <= "1001010010000100";
+    error_vec <=  "0100000000000001";
+	
 
-*/
     conv : for i in message_in'range generate
-        msg_to_decoder(i) <= to_signed(2, LLR_BITS) when message_in(i) = '0' else to_signed(-2, LLR_BITS); -- + error_vec(i);
+		msg_to_decoder(i) <= to_signed( 20, LLR_BITS) when error_vec(i) = '0' and message_in(i) = '0' else
+							 to_signed(-20, LLR_BITS) when error_vec(i) = '0' and message_in(i) = '1' else
+							 to_signed(-1, LLR_BITS) when error_vec(i) = '1' and message_in(i) = '0' else
+							 to_signed( 1, LLR_BITS) when error_vec(i) = '1' and message_in(i) = '1' else
+							 to_signed( 0, LLR_BITS);
+--		msg_to_decoder(i) <= (to_signed(2, LLR_BITS) when message_in(i) = '1' else to_signed(-2, LLR_BITS)) when error_vec(i) = '0' else to_signed(-1, LLR_BITS) when message_in(i) = '1' else to_signed(1, LLR_BITS);
     end generate;
 
 	process
