@@ -11,7 +11,10 @@ architecture test of decoder_soft_tb is
 	signal message_in : std_logic_vector(15 downto 0);
     signal msg_to_decoder : llr_type_array(15 downto 0) := (others => (others => '0'));
     signal error_vec : std_logic_vector(15 downto 0);
+	signal llr_data : llr_type_array(15 downto 0);
 
+
+	constant SIGMA : real := 0.1;
 begin
 	--            message			
 	message_in <= "1001010010000100";
@@ -42,13 +45,23 @@ begin
 		wait;
 	end process;
 
+	converter : entity work.read_to_llr
+		generic map (DATA_IN_BITS => LLR_BITS,
+			LLR_BITS => LLR_BITS,
+			N_IO => 16,
+			SIGMA => SIGMA,
+			MAX_IN => 1.5)
+		port map (data_in => msg_to_decoder,
+			data_out => llr_data);
+
+
 
 	dut : entity work.decoder_soft
 		port map (clk =>clk,
 			load => load,
 			done => done,
 			err => err,
-			message_in => msg_to_decoder,
+			message_in => llr_data,
 			decoded_out => decoded_out);
 
 end architecture;
