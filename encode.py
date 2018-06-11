@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 import numpy
+import matplotlib.pyplot as plt
 from scipy.linalg import lu
 from numpy.linalg import matrix_rank
 
-def calculate_G(H):
+def calculate_G(Hin):
+    H = Hin.copy()
     #print(matrix_rank(H))
     h = 0
     k = H.shape[1] - H.shape[0]
@@ -63,30 +65,11 @@ def calculate_G(H):
 def encode_message(x, G):
     return numpy.dot(x, G) % 2;
 
-H = numpy.array([
-        [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0],
-        [0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
-        [0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-        [0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0],
-        [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0],
-        [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0]])
-"""
-H = numpy.array([
-    [1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
-    [0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0],
-    [0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-    [0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1],
-    [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-    [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1],
-    [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0]])
-"""
-G = calculate_G(H)
-U = numpy.array([[1, 0, 0, 1, 0, 1, 0, 0]])
-print("H:", H)
-print("U:", U)
-print("G:", G)
-print("M:", encode_message(U, G))
+def qc_to_pcm(Hin, bs):
+    Hout = numpy.zeros(numpy.array(Hin.shape) * bs)
+    for i in range(0, Hin.shape[0]):
+        for j in range(0, Hin.shape[1]):
+            if Hin[i, j] >= 0:
+                Hout[i * bs:(i + 1) * bs, j * bs:(j + 1) * bs] = numpy.roll(numpy.identity(bs), Hin[i, j], axis=1)
+    return Hout
 

@@ -46,6 +46,34 @@ def decode_hard(X, H):
             break;
     return X
 
+def pcm_to_list(H):
+    rowpos = []
+    for i in range(0, H.shape[0]):
+        tmp = []
+        for j in range(0, H.shape[1]):
+            if H[i, j] == 1:
+                tmp.append(j)
+        rowpos.append(tmp)
+    colpos = []
+    for i in range(0, H.shape[1]):
+        tmp = []
+        for j in range(0, H.shape[0]):
+            if H[j, i] == 1:
+                tmp.append(j)
+        colpos.append(tmp)
+    rv = {}
+    rv["rowpos"] = rowpos
+    rv["colpos"] = colpos
+    return rv
+
+def decode_soft_list(X, H):
+    v_to_c = []
+    for row in rowpos:
+        tmp = []
+        for j in row:
+            tmp.append(X[j][0])
+        v_to_c.append(tmp)
+
 def decode_soft(X, H):
     v_to_c = []
     for i in range(0, H.shape[0]):
@@ -92,7 +120,7 @@ def decode_soft(X, H):
                     j += 1
     return 1*(L < 0)
 
-
+"""
 
 H = numpy.array([
         [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0],
@@ -120,6 +148,6 @@ X = decode_soft(X, H)
 print(X)
 
 print(numpy.array_equal(X, X_org))
-
+"""
 
 
