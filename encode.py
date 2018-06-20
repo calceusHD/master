@@ -112,7 +112,7 @@ def encode_ast(pre, s):
     Bp1 = numpy.matmul(pre["B"], p1) % 2
     AsBp1 = (As + Bp1) % 2
     p2 = -numpy.linalg.solve(pre["T"], AsBp1).astype(s.dtype) % 2
-    
+    print(p1)
     return numpy.concatenate((numpy.transpose(s), p1, p2))
 
 
@@ -136,11 +136,14 @@ Hqc = numpy.array([
 H = qc_to_pcm(Hqc, 27)
 tmp = (H, 27)
 print("returned\n", tmp)
+G = calculate_G(H)
 pre = encode_precompute(tmp[0], tmp[1])
 U = numpy.random.randint(2, size=(1, H.shape[0]))
+U = numpy.ones((1, H.shape[0]))
 print(U.shape)
 print(pre["A"].shape)
 M = encode_ast(pre, U)
-
-
+#print(M)
+M2 = numpy.transpose(encode_message(U, G))
+#print(M == M2)
 
