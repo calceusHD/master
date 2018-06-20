@@ -37,7 +37,7 @@ begin
 
 footer = "end architecture;"
 
-out_file = open("vhdl/encoder.vhd", "w")
+out_file = open("vhdl/autogen/encoder.vhd", "w")
 
 out_file.write(header)
 

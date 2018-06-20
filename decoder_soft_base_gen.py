@@ -97,7 +97,7 @@ def generate_connections(v_to_c, c_to_v):
 
 
 
-out_file = open("vhdl/decoder_soft.vhd", "w")
+out_file = open("vhdl/autogen/decoder_soft.vhd", "w")
 #out_file = sys.stdout
 c_to_v, v_to_c = matrix_to_conntection(H)
 
