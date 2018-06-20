@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import numpy
+import scipy.io as sio
 #import matplotlib.pyplot as plt
 
 import encode
@@ -29,14 +30,16 @@ H = numpy.array([
         [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0],
         [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0]])
-
+H = sio.loadmat("20003000V2.mat")
+H = H["Hqc2"]
+print(H)
 print(decode.pcm_to_list(H))
 
 # fixed precomputation
 H = encode.qc_to_pcm(Hqc, 27)
 G = encode.calculate_G(H)
 
-SIGMA = 0.00002
+SIGMA = .35
 err_count = 0
 frame_count = 1000
 for i in range(0, frame_count):
@@ -55,6 +58,8 @@ for i in range(0, frame_count):
     Xe = decode.decode_soft(LLR, H)
     if (numpy.sum(Xe != M) != 0):
         err_count += 1
+    print("frame error rate:", err_count / (i+1.0))
+    
 print("frame error rate:", err_count / frame_count)
 #print("U:", U)
 #print("G:", G)
