@@ -112,7 +112,6 @@ def encode_ast(pre, s):
     Bp1 = numpy.matmul(pre["B"], p1) % 2
     AsBp1 = (As + Bp1) % 2
     p2 = -numpy.linalg.solve(pre["T"], AsBp1).astype(s.dtype) % 2
-    print(p1)
     return numpy.concatenate((numpy.transpose(s), p1, p2))
 
 

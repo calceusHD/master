@@ -50,33 +50,30 @@ ast = encode.encode_precompute(H, 27)
 block_vector = numpy.zeros(27, dtype=Hqc.dtype)
 block_vector[0] = 1
         
-SIGMA = .035
+SIGMA = .35
 err_count = 0
 frame_count = 1000
 for i in range(0, frame_count):
-    print(i)
+    if i % 10 == 0:
+        print(i)
     #encoding
     U = numpy.random.randint(2, size=(1,message_length))
     #M = numpy.transpose(encode.encode_message(U, G))
     M = encode.encode_ast(ast, U)
     
-    print("enc done")
     #channel
     e = numpy.random.standard_normal(M.shape) * SIGMA
     X = M + e
 
     #decoding
     LLR = (1 - 2 * X) / (2 * SIGMA)
-    #print(LLR)
-    Xe = decode.decode_soft(LLR, H)
-    Xe2 = decode.decode_qc(LLR, Hqc, block_vector)
-    print("\n\n\n")
-    print(" test\n", Xe2)
-    print("truth\n", Xe[:,0])
-    if (numpy.sum(Xe != M) != 0):
+    
+    #Xe = decode.decode_soft(LLR, H)
+    Xe = decode.decode_qc(LLR, Hqc, block_vector)
+    if (numpy.sum(Xe != M[:,0]) != 0):
         err_count += 1
-    print("frame error rate:", err_count / (i+1.0))
-    break
+    if i % 10 == 0:
+        print("frame error rate:", err_count / (i+1.0))
 print("frame error rate:", err_count / frame_count)
 #print("U:", U)
 #print("G:", G)
