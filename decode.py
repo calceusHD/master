@@ -25,7 +25,7 @@ def cn_local(min_data, min2_data, min_id_data, min_signs, signs, sign_offset, we
     # returns the messages for the 1 in the current submatrix...
     relevant_signs = (signs[row * block_size:(row + 1) * block_size, sign_offset:sign_offset+weight] + numpy.array([min_signs,]*weight).transpose()) % 2
     
-    tmp = numpy.array([numpy.arange(weight) + column * block_size,]*block_size)
+    tmp = numpy.array([numpy.arange(weight) + column * weight,]*block_size)
     id_tmp = numpy.array([min_id_data,]*weight).transpose()
     
     numbers = numpy.array([min_data,]*weight).transpose() * (tmp != id_tmp)  + numpy.array([min2_data,]*weight).transpose() * (tmp == id_tmp)
@@ -73,7 +73,7 @@ def decode_qc(X, Hqc, block_vector):
                     current_data = vn_local(vn_sums[:,j], current_data)
                     current_data = numpy.roll(current_data, -Hqc[i, j], axis=0)
                     
-                    min_tmp, min2_tmp, min_id_tmp, sign_tmp, sign_res = cn_global(min_tmp, min2_tmp, min_id_tmp, sign_tmp, block_vector, current_data, j * block_size)
+                    min_tmp, min2_tmp, min_id_tmp, sign_tmp, sign_res = cn_global(min_tmp, min2_tmp, min_id_tmp, sign_tmp, block_vector, current_data, j * block_weight)
                     signs[i * block_size:(i + 1) * block_size, row_os * block_weight:(row_os + 1) * block_weight] = sign_res
                     row_os += 1
 
@@ -83,7 +83,7 @@ def decode_qc(X, Hqc, block_vector):
             gl_min_id[:,i] = min_id_tmp
             gl_sign[:,i] = sign_tmp
 
-        #as the local check node calculation stores no state it will only be implicitly use
+        #as the local check node calculation stores no state it will only be implicitly used
         #now follows the global variable node, this basically sums all columns
         for i in range(0, Hqc.shape[1]):
             sum_tmp = X_block[:,i] #numpy.zeros(block_size)
