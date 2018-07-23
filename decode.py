@@ -54,34 +54,34 @@ def decode_qc(X, Hqc, block_vector):
     
     # init
     X_block = numpy.reshape(X, (-1, block_size)).transpose()
-    vn_sums = numpy.reshape(X, (-1, block_size)).transpose()
     row_offsets = numpy.cumsum(Hqc >= 0, axis=1) - 1
     
-    for it in range(0, 10):
+    for it in range(0, 1):
         
         #we start with the global check node calculation
-        for i in range(0, Hqc.shape[0]):
-            min_tmp = numpy.full(block_size, numpy.inf)
-            min2_tmp = numpy.full(block_size, numpy.inf)
-            min_id_tmp = numpy.zeros(block_size, dtype=block_vector.dtype)
-            sign_tmp = numpy.zeros(block_size, dtype=block_vector.dtype)
-            row_os = 0
-            for j in range(0, Hqc.shape[1]):
-                if Hqc[i, j] >= 0:
-                    current_data = cn_local(gl_min[:,i], gl_min2[:,i], gl_min_id[:,i], gl_sign[:,i], signs, row_os * block_weight, block_weight, i, block_size, j)
-                    current_data = numpy.roll(current_data, Hqc[i, j], axis=0)
-                    current_data = vn_local(vn_sums[:,j], current_data)
-                    current_data = numpy.roll(current_data, -Hqc[i, j], axis=0)
-                    
-                    min_tmp, min2_tmp, min_id_tmp, sign_tmp, sign_res = cn_global(min_tmp, min2_tmp, min_id_tmp, sign_tmp, block_vector, current_data, j * block_weight)
-                    signs[i * block_size:(i + 1) * block_size, row_os * block_weight:(row_os + 1) * block_weight] = sign_res
-                    row_os += 1
+        if it > 0:
+            for i in range(0, Hqc.shape[0]):
+                min_tmp = numpy.full(block_size, numpy.inf)
+                min2_tmp = numpy.full(block_size, numpy.inf)
+                min_id_tmp = numpy.zeros(block_size, dtype=block_vector.dtype)
+                sign_tmp = numpy.zeros(block_size, dtype=block_vector.dtype)
+                row_os = 0
+                for j in range(0, Hqc.shape[1]):
+                    if Hqc[i, j] >= 0:
+                        current_data = cn_local(gl_min[:,i], gl_min2[:,i], gl_min_id[:,i], gl_sign[:,i], signs, row_os * block_weight, block_weight, i, block_size, j)
+                        current_data = numpy.roll(current_data, Hqc[i, j], axis=0)
+                        current_data = vn_local(vn_sums[:,j], current_data)
+                        current_data = numpy.roll(current_data, -Hqc[i, j], axis=0)
+                        
+                        min_tmp, min2_tmp, min_id_tmp, sign_tmp, sign_res = cn_global(min_tmp, min2_tmp, min_id_tmp, sign_tmp, block_vector, current_data, j * block_weight)
+                        signs[i * block_size:(i + 1) * block_size, row_os * block_weight:(row_os + 1) * block_weight] = sign_res
+                        row_os += 1
 
-            #when we collect all data from a row we write it to the global arrays
-            gl_min[:,i] = min_tmp
-            gl_min2[:,i] = min2_tmp
-            gl_min_id[:,i] = min_id_tmp
-            gl_sign[:,i] = sign_tmp
+                #when we collect all data from a row we write it to the global arrays
+                gl_min[:,i] = min_tmp
+                gl_min2[:,i] = min2_tmp
+                gl_min_id[:,i] = min_id_tmp
+                gl_sign[:,i] = sign_tmp
 
         #as the local check node calculation stores no state it will only be implicitly used
         #now follows the global variable node, this basically sums all columns
