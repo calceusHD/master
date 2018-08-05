@@ -42,11 +42,14 @@ package common is\n"""
 rv += "constant LLR_BITS :natural := " + str(llr_bits) + ";\n"
 rv += "type llr_row_t is array(0 to " + str(block_weight) + "-1) of signed(" + str(llr_bits) + "-1 downto 0);\n"
 rv += "type llr_array_t is array(0 to " + str(block_size) + "-1, 0  to " + str(block_weight) + "-1) of signed(" + str(llr_bits) + "-1 downto 0);\n"
+rv += "type llr_column_t is array(0 to " + str(block_size) + "-1) of signed(" + str(llr_bits) + "-1 downto 0);\n"
+
 
 #column sum array
 rv += "subtype column_sum_t is signed(" + str(llr_bits + row_sum_extra) + "-1 downto 0);\n"
 rv += "type column_sum_array_t is array(0 to " + str(block_size) + "-1) of column_sum_t;\n"
 rv += "subtype min_signs_t is std_logic_vector(0 to " + str(block_size) + "-1);\n"
+
 
 #signless minimum storage
 rv += "subtype min_t is unsigned(" + str(llr_bits) + "-1 downto 0);\n"
@@ -64,6 +67,8 @@ rv += "type roll_count_t is array(0 to " + str(block_weight) + "-1) of natural;\
 
 nonz = numpy.nonzero(block_vector)
 rv += "constant ROLL_COUNT : roll_count_t := (" + ','.join(map(str, nonz[0])) + ");\n"
+rv += "constent HQC_COLUMNS : natural := " + str(Hqc.shape[1]) + ");\n"
+
 rv += "end package;"
 
 

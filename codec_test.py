@@ -63,7 +63,7 @@ for i in range(0, frame_count):
     
     #channel
     e = numpy.random.standard_normal(M.shape) * SIGMA
-    X = M + e
+    X = M #+ e
 
     #decoding
     LLR = (1 - 2 * X) / (2 * SIGMA)

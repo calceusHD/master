@@ -9,8 +9,8 @@ entity cn_global is
         data_in : in llr_array_t;
         min_in, min2_in : in min_array_t;
         min_id_in : in min_id_array_t;
-        sign_in : min_signs_t;
-        offset : unsigned;
+        sign_in : in min_signs_t;
+        offset : in unsigned;
 
         min_out, min2_out : out min_array_t;
         min_id_out : out min_id_array_t;
