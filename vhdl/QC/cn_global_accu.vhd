@@ -7,7 +7,6 @@ use work.common.all;
 entity cn_global_accu is
 	port (
 		clk : in std_logic;
-		res : in std_logic;
 
 		data_in : in llr_array_t;
 		

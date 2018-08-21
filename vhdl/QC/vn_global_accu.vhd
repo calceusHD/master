@@ -7,11 +7,10 @@ use work.common.all;
 entity vn_global_accu is
     port (
         clk : in std_logic;
-        res : in std_logic;
         
         data_in : llr_array_t;
 
-        row_end : in std_logic;
+        col_end : in std_logic;
         preload_in : column_sum_array_t;
         
         sum_out : column_sum_array_t
