@@ -19,4 +19,8 @@ subtype min_id_t is unsigned(4-1 downto 0);
 type min_id_array_t is array(0 to 27-1) of min_id_t;
 type roll_count_t is array(0 to 2-1) of natural;
 constant ROLL_COUNT : roll_count_t := (0,5);
+constent HQC_COLUMNS : natural := 24);
+constant VN_MEM_BITS : natural := 5);
+constant CN_MEM_BITS : natural := 4);
+constant INSTRUCTIONS : std_logic_vector(36-1 downto 0);
 end package;

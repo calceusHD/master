@@ -30,6 +30,16 @@ Hqc = numpy.array([
 max_row_weight = block_weight * numpy.max(numpy.sum(Hqc >= 0, axis=1))
 row_sum_extra = math.ceil(math.log2(max_row_weight))
 
+row_bits = math.ceil(math.log2(Hqc.shape[1]))
+col_bits = math.ceil(math.log2(Hqc.shape[0]))
+
+#instruction width
+#row_end col_end llr_mem_rd llr_mem_addr result_addr result_wr store_cn_wr store_cn_addr load_cn_rd load_cn_addr store_vn_wr store_vn_addr load_vn_rd load_vn_addr
+#1       1       1          row_bits     row_bits    1         1           col_bits      1          col_bits     1           row_bits      1          row_bits
+
+total_inst_bits = 8 + 4 * row_bits + 2 * col_bits
+
+
 #generate types
 rv = """
 library IEEE;
@@ -69,6 +79,11 @@ nonz = numpy.nonzero(block_vector)
 rv += "constant ROLL_COUNT : roll_count_t := (" + ','.join(map(str, nonz[0])) + ");\n"
 rv += "constent HQC_COLUMNS : natural := " + str(Hqc.shape[1]) + ");\n"
 
+rv += "constant VN_MEM_BITS : natural := " + str(row_bits) + ");\n"
+rv += "constant CN_MEM_BITS : natural := " + str(col_bits) + ");\n"
+
+rv += "type inst_t is array(integer range <>) of std_logic_vector(" + str(total_inst_bits) + "-1 downto 0);\n"
+rv += "constant INSTRUCTIONS : inst_t(0 to 100);\n"
 rv += "end package;"
 
 
