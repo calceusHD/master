@@ -6,33 +6,56 @@ use work.common.all;
 
 entity decoder is
 	port (
-		clk : std_logic;
-		res : std_logic;
-		llr_in : llr_column_t;
-		wr_in : std_logic;
-		end_in : std_logic;
-		res_out : std_logic_vector;
-		res_rd : std_logic;
-		res_end : std_logic
+		clk : in std_logic;
+		res : in std_logic;
+		llr_in : in llr_column_t;
+		wr_in : in std_logic;
+		end_in : in std_logic;
+		res_out : out std_logic_vector;
+		res_rd : out std_logic;
+		res_end : out std_logic
 
 	);
 end entity;
 
 architecture base of decoder is
-    offset : unsigned(??);
-	roll : unsigned;
-	row_end, col_end : std_logic;
-	load_min, load_min2, store_min, store_min2 : min_array_t;
-	load_min_id, store_min_id : min_id_array_t;
-	load_sign, store_sign : min_signs_t;
-	load_signs, store_signs : signs_t;
-	cn_local_roll, roll_vn, vn_local_roll, roll_cn_global : llr_array_t;
-	load_col_sum, store_col_sum, current_llr_in : column_sum_array_t;
+    signal offset : min_id_t;
+	signal roll : roll_t;
+	signal row_end, col_end, no_error : std_logic;
+	signal llr_mem_rd, result_wr, store_cn_wr, load_cn_rd, store_vn_wr, load_vn_rd : std_logic;
+	signal load_min, load_min2, store_min, store_min2 : min_array_t;
+	signal load_min_id, store_min_id : min_id_array_t;
+	signal load_sign, store_sign : min_signs_t;
+	signal load_signs, store_signs : signs_t;
+	signal cn_local_roll, roll_vn, vn_local_roll, roll_cn_global, vn_local_cn_global : llr_array_t;
+	signal load_col_sum, store_col_sum, current_llr_in : column_sum_array_t;
+	signal llr_mem_addr, result_addr, store_vn_addr, load_vn_addr : row_addr_t;
+	signal store_cn_addr, load_cn_addr : col_addr_t;
+	signal store_result : min_signs_t;
 begin
 	fsm_inst : entity work.fsm
 	port map (
 		clk => clk,
 		res => res,
+		start => end_in,
+		no_error => no_error,
+		row_end => row_end,
+		col_end => col_end,
+		llr_mem_rd => llr_mem_rd,
+		llr_mem_addr => llr_mem_addr,
+		result_addr => result_addr,
+		result_wr => result_wr,
+		store_cn_wr => store_cn_wr,
+		store_cn_addr => store_cn_addr,
+		load_cn_rd => load_cn_rd,
+		load_cn_addr => load_cn_addr,
+		store_vn_wr => store_vn_wr,
+		store_vn_addr => store_vn_addr,
+		load_vn_rd => load_vn_rd,
+		load_vn_addr => load_vn_addr,
+		min_offset => offset,
+		roll => roll
+	);
 
 
 --so as I do 2 distinct step but they have some functions in common so I get a big mess. As I want to save hardware I have to combine it into 1 file. 
@@ -147,7 +170,7 @@ begin
 		rd_addr => load_cn_addr
 	);
 
-	vn_memory_inst : entity work.vn
+	vn_memory_inst : entity work.vn_memory
 	port map (
 		clk => clk,
 		sum_in => store_col_sum,
@@ -157,3 +180,4 @@ begin
 		rd_in => load_vn_rd,
 		rd_addr => load_vn_addr
 	);
+end architecture;
