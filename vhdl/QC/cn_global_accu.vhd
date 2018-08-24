@@ -13,7 +13,7 @@ entity cn_global_accu is
 		row_end : in std_logic;
         offset : in unsigned;
 
-		min_out, min2_out : out min_id_array_t;
+		min_out, min2_out : out min_array_t;
 		min_id_out : out min_id_array_t;
 		sign_out : out min_signs_t;
 

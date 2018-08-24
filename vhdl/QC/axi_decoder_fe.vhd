@@ -5,5 +5,4 @@ use IEEE.math_real.all;
 use work.common.all;
 
 entity axi_decoder is
-	port (
-	
+end entity;

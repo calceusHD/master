@@ -21,10 +21,8 @@ begin
 	begin
 		gen_j : for j in data_in'range(2) generate
 		begin
-			if DIRECTION then
-				data_out(i, j) <= data_in((i - roll_count) mod data_in'length, j);
-			else
-				data_out(i, j) <= data_in((i + roll_count) mod data_in'length, j);
+			data_out(i, j) <= data_in((i - roll_count) mod data_in'length, j) when DIRECTION 
+				else data_in((i + roll_count) mod data_in'length, j);
 		end generate;
 	end generate;
 

@@ -15,8 +15,7 @@ entity llr_in_memory is
 
 		llr_out : out column_sum_array_t;
 		rd_in : in std_logic;
-		rd_addr : in std_logic_vector;
-		
+		rd_addr : in row_addr_t
 	);
 end entity;
 
@@ -43,8 +42,9 @@ begin
     io_map : for i in llr_in'range generate
         constant start : natural := (i + 1) * llr_in(0)'length - 1;
         constant stop : natural := i * llr_in(0)'length;
+	begin
         write_data(start downto stop) <= std_logic_vector(llr_in(i));
-        llr_out(i) <= resize( signed(read_data(start downto stop), llr_out(0)'length);
+        llr_out(i) <= resize( signed(read_data(start downto stop)), llr_out(0)'length);
     end generate;
 
     mem : entity work.generic_ram

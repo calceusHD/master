@@ -13,13 +13,13 @@ entity cn_memory is
 		min_id_in : in min_id_array_t;
 		sign_in : in min_signs_t;
 		wr_in : in std_logic;
-		wr_addr : in std_logic_vector;
+		wr_addr : in col_addr_t;
 
-		min_out, min2_out : out min_id_array_t;
+		min_out, min2_out : out min_array_t;
 		min_id_out : out min_id_array_t;
 		sign_out : out min_signs_t;
 		rd_in : in std_logic;
-		rd_addr : in std_logic_vector
+		rd_addr : in col_addr_t
 	);
 end entity;
 

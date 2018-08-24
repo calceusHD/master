@@ -9,11 +9,11 @@ entity vn_memory is
 		clk : in std_logic;
 		sum_in : in column_sum_array_t;
 		wr_in : in std_logic;
-		wr_addr : in std_logic_vector;
+		wr_addr : in row_addr_t;
 		
 		sum_out : out column_sum_array_t;
 		rd_in : in std_logic;
-		rd_addr : in std_logic_vector
+		rd_addr : in row_addr_t
 	);
 end entity;
 
@@ -40,3 +40,4 @@ begin
 		rd_data => conc_out,
 		rd_addr => rd_addr
 	);
+end architecture;
