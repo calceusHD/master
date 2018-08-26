@@ -19,7 +19,7 @@ end entity;
 
 architecture base of vn_memory is
 	constant bit_width : natural := sum_in'length * sum_in(0)'length;
-	signal conc_in, conc_out : std_logic_vector(bit_width-1 downto o);
+	signal conc_in, conc_out : std_logic_vector(bit_width-1 downto 0);
 begin
 
 	sum_gen : for i in sum_in'range generate
@@ -27,7 +27,7 @@ begin
 		constant stop : natural := i * sum_in(0)'length;
 	begin
 		conc_in(start downto stop) <= std_logic_vector(sum_in(i));
-		sum_out(i) <= unsigned(conc_out(start downto stop));
+		sum_out(i) <= signed(conc_out(start downto stop));
 	end generate;
 
 	ram_impl : entity work.generic_ram

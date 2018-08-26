@@ -47,6 +47,7 @@ begin
         llr_out(i) <= resize( signed(read_data(start downto stop)), llr_out(0)'length);
     end generate;
 
+
     mem : entity work.generic_ram
     port map (
         clk => clk,
@@ -55,6 +56,6 @@ begin
         wr_addr => write_addr,
         rd_en => rd_in,
         rd_data => read_data,
-        rd_addr => rd_in
+        rd_addr => rd_addr
     );
 end architecture;

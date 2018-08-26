@@ -3,30 +3,17 @@ import numpy
 import math
 import numpy.random
 
-def generate_record_const(name, val):
-    return name + " => " + "\"" + str(val) + "\""
+def generate_record_const(name, val, sep):
+    return name + " => " + sep + str(val) + sep
 
-def generate_addr_pair(name, val, d):
+def to_bin(val, length):
+    return bin(val)[2:0].zfill(length)
+
+def generate_addr_pair(name, val, d, length):
     rv = ""
-    rv += generate_record_const(name + "_" + d, "1" if val >= 0 else "0") + ","
-    rv += generate_record_const(name + "_addr", val if val >= 0 else 0)
+    rv += generate_record_const(name + "_" + d, "1" if val >= 0 else "0", "'") + ","
+    rv += generate_record_const(name + "_addr", to_bin(val if val >= 0 else 0, length), "\"")
     return rv
-
-def generate_inst(row_end, col_end, llr_mem_addr, result_addr, store_cn_addr, load_cn_addr, store_vn_addr, load_vn_addr, min_offset, roll):
-    rv = "("
-    rv += generate_record_const("row_end", "1" if row_end else "0") + ","
-    rv += generate_record_const("col_end", "1" if col_end else "0") + ","
-    rv += generate_addr_pair("llr_mem", llr_mem_addr, "rd") + ","
-    rv += generate_addr_pair("result", result_addr, "wr") + ","
-    rv += generate_addr_pair("store_cn", store_cn_addr, "wr") + ","
-    rv += generate_addr_pair("load_cn", load_cn_addr, "rd") + ","
-    rv += generate_addr_pair("store_vn", store_vn_addr, "wr") + ","
-    rv += generate_addr_pair("load_vn", load_vn_addr, "rd") + ","
-    rv += generate_record_const("min_offset", min_offset) + ","
-    rv += generate_record_const("roll", roll)
-    rv += ")"
-    return rv
-
 llr_bits = 8
 
 block_vector = numpy.zeros(27, dtype='intc')
@@ -58,6 +45,22 @@ roll_bits = math.ceil(math.log2(block_size))
 
 row_bits = math.ceil(math.log2(Hqc.shape[1]))
 col_bits = math.ceil(math.log2(Hqc.shape[0]))
+
+
+def generate_inst(row_end, col_end, llr_mem_addr, result_addr, store_cn_addr, load_cn_addr, store_vn_addr, load_vn_addr, min_offset, roll):
+    rv = "("
+    rv += generate_record_const("row_end", "1" if row_end else "0", "'") + ", "
+    rv += generate_record_const("col_end", "1" if col_end else "0", "'") + ", "
+    rv += generate_addr_pair("llr_mem", llr_mem_addr, "rd", row_bits) + ", "
+    rv += generate_addr_pair("result", result_addr, "wr", row_bits) + ", "
+    rv += generate_addr_pair("store_cn", store_cn_addr, "wr", col_bits) + ", "
+    rv += generate_addr_pair("load_cn", load_cn_addr, "rd", col_bits) + ", "
+    rv += generate_addr_pair("store_vn", store_vn_addr, "wr", row_bits) + ", "
+    rv += generate_addr_pair("load_vn", load_vn_addr, "rd", row_bits) + ", "
+    rv += generate_record_const("min_offset", to_bin(min_offset, row_sum_extra), "\"") + ", "
+    rv += generate_record_const("roll", to_bin(roll, roll_bits), "\"")
+    rv += ")"
+    return rv
 
 
 #instruction width
@@ -132,8 +135,8 @@ rv += """type inst_t is
     end record;
 """
 rv += "type inst_array_t is array(integer range <>) of inst_t;\n"
-inst_count = 1
-rv += "constant INSTRUCTIONS : inst_t(0 to " + str(inst_count) + "-1) := ;\n"
+inst_count = 2
+rv += "constant INSTRUCTIONS : inst_array_t(0 to " + str(inst_count) + "-1) := (" + generate_inst(False, False, 10, 0, 0, 0, 0, 0, 3, 7) + ",\n" + generate_inst(False, False, 10, 0, 0, 0, 0, 0, 3, 7) + ");\n"
 print(generate_inst(True, False, 1, 2, -1, 3, 4, 5, 6, 7))
 rv += "end package;"
 

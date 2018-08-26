@@ -14,7 +14,7 @@ end entity;
 
 architecture base of saturate is
 	signal rv : signed(data_out'range);
-	constant rv_width : integer := data_out'width;
+	constant rv_width : integer := data_out'length;
 begin
 	data_out <= rv;
 

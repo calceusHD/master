@@ -45,5 +45,6 @@ type inst_t is
         roll : roll_t;
     end record;
 type inst_array_t is array(integer range <>) of inst_t;
-constant INSTRUCTIONS : inst_t(0 to 1-1) := ;
+constant INSTRUCTIONS : inst_array_t(0 to 2-1) := ((row_end => '0', col_end => '0', llr_mem_rd => '1',llr_mem_addr => "00000", result_wr => '1',result_addr => "00000", store_cn_wr => '1',store_cn_addr => "0000", load_cn_rd => '1',load_cn_addr => "0000", store_vn_wr => '1',store_vn_addr => "00000", load_vn_rd => '1',load_vn_addr => "00000", min_offset => "0000", roll => "00000"),
+(row_end => '0', col_end => '0', llr_mem_rd => '1',llr_mem_addr => "00000", result_wr => '1',result_addr => "00000", store_cn_wr => '1',store_cn_addr => "0000", load_cn_rd => '1',load_cn_addr => "0000", store_vn_wr => '1',store_vn_addr => "00000", load_vn_rd => '1',load_vn_addr => "00000", min_offset => "0000", roll => "00000"));
 end package;

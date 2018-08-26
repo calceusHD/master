@@ -46,7 +46,7 @@ entity fsm is
 end entity;
 
 architecture base of fsm is
-	signal inst_read_addr : unsigned;
+	signal inst_read_addr : unsigned(32 downto 0);
 	signal current_inst : inst_t;
 	type states_t is (FSM_IDLE, FSM_WORK);
 	signal state : states_t := FSM_IDLE;
@@ -68,6 +68,12 @@ begin
 	begin
 		if rising_edge(clk) then
 			if state = FSM_WORK then
-				current_inst <= 
+				current_inst <= INSTRUCTIONS(to_integer(inst_read_addr));
+                inst_read_addr <= inst_read_addr + 1;
+            else
+                inst_read_addr <= (others => '0');
+            end if;
+        end if;
+    end process;
 
 end architecture;

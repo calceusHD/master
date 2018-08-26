@@ -31,7 +31,7 @@ begin
             if res = '1' then
                 read_addr <= (others => '0');
             else
-                if rd_in = '1' then
+                if res_rd = '1' then
                     read_addr <= read_addr + 1;
                     if read_addr = HQC_COLUMNS then
                         read_addr <= (others => '0');

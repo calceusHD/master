@@ -22,7 +22,9 @@ begin
     gen_i : for i in signless_rv'range(1) generate
     begin
         gen_j : for j in signless_rv'range(2) generate
-            signless_rv(i, j) <= min_in(i) when min_id_in(i) /= offset + j else min2_in(i);
+            signless_rv(i, j) <= to_signed(to_integer(min_in(i)), signless_rv(0, 0)'length) 
+                when min_id_in(i) /= offset + j 
+                else to_signed(to_integer(min2_in(i)), signless_rv(0, 0)'length);
         end generate;
     end generate;
 

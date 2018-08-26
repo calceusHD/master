@@ -9,10 +9,10 @@ entity generic_ram is
 		clk : in std_logic;
 		wr_en : in std_logic;
 		wr_data : in std_logic_vector;
-		wr_addr : in std_logic_vector;
+		wr_addr : in unsigned;
 		rd_en : in std_logic;
 		rd_data : out std_logic_vector;
-		rd_addr : in std_logic_vector
+		rd_addr : in unsigned
 	);
 end entity;
 

@@ -22,7 +22,7 @@ entity cn_global_accu is
 end entity;
 
 architecture base of cn_global_accu is
-	signal min_acc, min2_acc, min_res, min2_res : min_id_array_t;
+	signal min_acc, min2_acc, min_res, min2_res : min_array_t;
 	signal min_id_acc, min_id_res : min_id_array_t;
 	signal sign_acc, sign_res : min_signs_t;
 	signal load : std_logic;
@@ -38,9 +38,9 @@ begin
         end if;
     end process;
 
-	min_acc <= (others => '1') when load = '1' else min_res;
-    min2_acc <= (others => '1') when load = '1' else min2_res;
-    min_id_acc <= (others => '0') when load = '1' else min_id_res;
+	min_acc <= (others => (others => '1')) when load = '1' else min_res;
+    min2_acc <= (others => (others => '1')) when load = '1' else min2_res;
+    min_id_acc <= (others => (others => '0')) when load = '1' else min_id_res;
     sign_acc <= (others => '0') when load = '1' else sign_res;
 
 

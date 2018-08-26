@@ -15,11 +15,11 @@ end entity;
 architecture base of attach_signs is
 begin
 
-	gen_i : for i in signless_in'range generate
+	gen_i : for i in signless_in'range(1) generate
 	begin
-		gen_j : for j in signless_in(i)'range generate
+		gen_j : for j in signless_in'range(2) generate
 		begin
-			sign_out(i, j) <= - signless_in(i, j) when sign_in(i, j) = '1' else signless_in(i, j);
+			signed_out(i, j) <= - signless_in(i, j) when signs_in(i)(j) = '1' else signless_in(i, j);
 		end generate;
 	end generate;
 end architecture;

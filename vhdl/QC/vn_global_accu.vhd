@@ -19,12 +19,13 @@ end entity;
 
 architecture base of vn_global_accu is
     signal sum_acc, sum_res : column_sum_array_t;
+    signal load : std_logic;
 begin
     
     process (clk)
     begin
         if rising_edge(clk) then
-            if row_end = '1' then
+            if col_end = '1' then
                 load <= '1';
             else
                 load <= '0';
