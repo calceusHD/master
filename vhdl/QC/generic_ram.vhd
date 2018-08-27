@@ -17,7 +17,7 @@ entity generic_ram is
 end entity;
 
 architecture base of generic_ram is
-	type ram_t is array(0 to 2**wr_data'length-1) of std_logic_vector(wr_data'range);
+	type ram_t is array(0 to 2**wr_addr'length-1) of std_logic_vector(wr_data'range);
 	signal memory : ram_t;
 begin
 	process (clk)

@@ -10,7 +10,7 @@ entity result_memory is
         res : in std_logic;
         
         res_in : in min_signs_t;
-        addr_in : in unsigned;
+        addr_in : in row_addr_t;
         wr_in : in std_logic;
 
         res_out : out min_signs_t;
