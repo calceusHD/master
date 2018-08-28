@@ -6,6 +6,7 @@ __pycache__/
 vhdl/work
 vhdl/QC/work
 *.ghw
+*.gtkw
 
 # C extensions
 *.so
