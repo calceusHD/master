@@ -4,7 +4,7 @@ use IEEE.numeric_std.all;
 use IEEE.math_real.all;
 use work.common.all;
 
-entity sign_memory is
+entity signs_memory is
 	port (
 		clk : in std_logic;
 		signs_in : in signs_t;
@@ -17,17 +17,17 @@ entity sign_memory is
 	);
 end entity;
 
-architecture base of sign_memory is
-	constant bit_width : natural := signs_in'length * sign_in(0)'length;
+architecture base of signs_memory is
+	constant bit_width : natural := signs_in'length * signs_in(0)'length;
 	signal conc_in, conc_out : std_logic_vector(bit_width-1 downto 0);
 begin
 
-	sign_gen : i in signs_in'range generate
+	sign_gen : for i in signs_in'range generate
 		constant start : natural := (i+1) * signs_in(0)'length - 1;
 		constant stop : natural := i * signs_in(0)'length;
 	begin
 		conc_in(start downto stop) <= signs_in(i);
-		sign_out(i) <= conc_out(start downto stop);
+		signs_out(i) <= conc_out(start downto stop);
 	end generate;
 
 	ram_impl : entity work.generic_ram

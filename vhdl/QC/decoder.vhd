@@ -22,7 +22,7 @@ architecture base of decoder is
     signal offset : min_id_t;
 	signal roll : roll_t;
 	signal row_end, col_end, no_error : std_logic;
-	signal llr_mem_rd, result_wr, store_cn_wr, load_cn_rd, store_vn_wr, load_vn_rd : std_logic;
+	signal llr_mem_rd, result_wr, store_cn_wr, load_cn_rd, store_vn_wr, load_vn_rd, store_signs_wr, load_signs_rd : std_logic;
 	signal load_min, load_min2, store_min, store_min2 : min_array_t;
 	signal load_min_id, store_min_id : min_id_array_t;
 	signal load_sign, store_sign : min_signs_t;
@@ -32,6 +32,7 @@ architecture base of decoder is
 	signal llr_mem_addr, result_addr, store_vn_addr, load_vn_addr : row_addr_t;
 	signal store_cn_addr, load_cn_addr : col_addr_t;
 	signal store_result : min_signs_t;
+	signal store_signs_addr, load_signs_addr : signs_addr_t;
 begin
 	fsm_inst : entity work.fsm
 	port map (
