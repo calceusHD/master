@@ -7,13 +7,15 @@ def generate_record_const(name, val, sep):
     return name + " => " + sep + str(val) + sep
 
 def to_bin(val, length):
-    return bin(val)[2:0].zfill(length)
+    return bin(val)[2:].zfill(length)
 
 def generate_addr_pair(name, val, d, length):
     rv = ""
     rv += generate_record_const(name + "_" + d, "1" if val >= 0 else "0", "'") + ","
     rv += generate_record_const(name + "_addr", to_bin(val if val >= 0 else 0, length), "\"")
     return rv
+
+
 llr_bits = 8
 
 block_vector = numpy.zeros(27, dtype='intc')
@@ -45,9 +47,9 @@ roll_bits = math.ceil(math.log2(block_size))
 
 row_bits = math.ceil(math.log2(Hqc.shape[1]))
 col_bits = math.ceil(math.log2(Hqc.shape[0]))
+sign_store_bits = math.ceil(math.log2(numpy.sum(Hqc >= 0)))
 
-
-def generate_inst(row_end, col_end, llr_mem_addr, result_addr, store_cn_addr, load_cn_addr, store_vn_addr, load_vn_addr, min_offset, roll):
+def generate_inst(row_end, col_end, llr_mem_addr, result_addr, store_cn_addr, load_cn_addr, store_vn_addr, load_vn_addr, store_signs_addr, load_signs_addr, min_offset, roll):
     rv = "("
     rv += generate_record_const("row_end", "1" if row_end else "0", "'") + ", "
     rv += generate_record_const("col_end", "1" if col_end else "0", "'") + ", "
@@ -57,11 +59,43 @@ def generate_inst(row_end, col_end, llr_mem_addr, result_addr, store_cn_addr, lo
     rv += generate_addr_pair("load_cn", load_cn_addr, "rd", col_bits) + ", "
     rv += generate_addr_pair("store_vn", store_vn_addr, "wr", row_bits) + ", "
     rv += generate_addr_pair("load_vn", load_vn_addr, "rd", row_bits) + ", "
+    rv += generate_addr_pair("store_signs", store_signs_addr, "wr", sign_store_bits) + ", "
+    rv += generate_addr_pair("load_signs", load_signs_addr, "rd", sign_store_bits) + ", "
     rv += generate_record_const("min_offset", to_bin(min_offset, row_sum_extra), "\"") + ", "
     rv += generate_record_const("roll", to_bin(roll, roll_bits), "\"")
     rv += ")"
     return rv
 
+def generate_inst_list(Hqc):
+    insts = []
+    row_offsets = (numpy.cumsum(Hqc >= 0, axis=1) - 1)
+    #so I wanna tightly pack all the signs i have to store so i need some type of offset for each valid position in my Hqc matrix
+    sign_offset = numpy.reshape((numpy.cumsum((Hqc >= 0)[:]) - 1), Hqc.shape)
+    for i in range(0, Hqc.shape[0]):
+        for j in range(0, Hqc.shape[1]):
+            if Hqc[i, j] >= 0:
+                if j == Hqc.shape[1] - 1:
+                    store_cn_addr = i
+                else:
+                    store_cn_addr = -1
+
+                insts.append((j == 0, False, -1, -1, store_cn_addr, i, -1, j, sign_offset[i, j], sign_offset[i, j], row_offsets[i, j] * block_weight, Hqc[i, j]))
+
+    for i in range(0, Hqc.shape[1]):
+        for j in range(0, Hqc.shape[0]):
+            if Hqc[j, i] >= 0:
+                if j == Hqc.shape[0]:
+                    store_vn_addr = j
+                else:
+                    store_vn_addr = -1
+
+                insts.append((False, j == 0, i if j == 0 else - 1, store_vn_addr, -1, j, store_vn_addr, -1, -1, sign_offset[j, i], 0, Hqc[j, i]))
+    print(insts)
+    print(len(insts))
+    return insts
+
+
+generate_inst_list(Hqc)
 
 #instruction width
 #row_end col_end llr_mem_rd llr_mem_addr result_addr result_wr store_cn_wr store_cn_addr load_cn_rd load_cn_addr store_vn_wr store_vn_addr load_vn_rd load_vn_addr
@@ -106,6 +140,7 @@ rv += "type min_id_array_t is array(0 to " + str(block_size) + "-1) of min_id_t;
 rv += "type roll_count_t is array(0 to " + str(block_weight) + "-1) of natural;\n"
 rv += "subtype row_addr_t is unsigned(" + str(row_bits) + "-1 downto 0);\n"
 rv += "subtype col_addr_t is unsigned(" + str(col_bits) + "-1 downto 0);\n"
+rv += "subtype signs_addr_t is unsigned(" + str(sign_store_bits) + "-1 downto 0);\n"
 rv += "subtype roll_t is unsigned(" + str(roll_bits) + "-1 downto 0);\n"
 
 nonz = numpy.nonzero(block_vector)
@@ -130,14 +165,18 @@ rv += """type inst_t is
         store_vn_addr : row_addr_t;
         load_vn_rd : std_logic;
         load_vn_addr : row_addr_t;
+        store_signs_wr : std_logic;
+        store_signs_addr : signs_addr_t;
+        load_signs_rd : std_logic;
+        load_signs_addr : signs_addr_t;
         min_offset : min_id_t;
         roll : roll_t;
     end record;
 """
 rv += "type inst_array_t is array(integer range <>) of inst_t;\n"
 inst_count = 2
-rv += "constant INSTRUCTIONS : inst_array_t(0 to " + str(inst_count) + "-1) := (" + generate_inst(False, False, 10, 0, 0, 0, 0, 0, 3, 7) + ",\n" + generate_inst(False, False, 10, 0, 0, 0, 0, 0, 3, 7) + ");\n"
-print(generate_inst(True, False, 1, 2, -1, 3, 4, 5, 6, 7))
+rv += "constant INSTRUCTIONS : inst_array_t(0 to " + str(inst_count) + "-1) := (" + generate_inst(False, False, 10, 0, 0, 0,  0, 0, 0, 0, 3, 7) + ",\n" + generate_inst(False, False, 10, 0, 0, 0, 0, 0, 0, 0, 3, 7) + ");\n"
+print(generate_inst(True, False, 1, 2, -1, 3, 4, 5, 6, 7, 8, 9))
 rv += "end package;"
 
 

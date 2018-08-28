@@ -35,8 +35,6 @@ H = numpy.array([
         [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0]])
 #H = sio.loadmat("20003000V2.mat")
 #H = H["Hqc2"]
-print(H)
-print(decode.pcm_to_list(H))
 
 
 # fixed precomputation
@@ -52,7 +50,16 @@ block_vector[0] = 1
         
 SIGMA = .35
 err_count = 0
-frame_count = 1000
+frame_count = 1
+
+f = open("test.txt", "w")
+
+def to_twoscomplement(value, bits):
+    if value < 0:
+        value = ( 1<<bits ) + value
+    formatstring = '{:0%ib}' % bits
+    return formatstring.format(value)
+
 for i in range(0, frame_count):
     if i % 10 == 0:
         print(i)
@@ -67,6 +74,12 @@ for i in range(0, frame_count):
 
     #decoding
     LLR = (1 - 2 * X) / (2 * SIGMA)
+    test = numpy.reshape(LLR, (-1, 27)) * 10
+    test = test.astype(int)
+    for i in range(0, test.shape[0]):
+        for j in range(0, test.shape[1]):
+            f.write(to_twoscomplement(test[i,j],8))
+        f.write("\n")
     
     #Xe = decode.decode_soft(LLR, H)
     Xe = decode.decode_qc(LLR, Hqc, block_vector)
@@ -75,6 +88,9 @@ for i in range(0, frame_count):
     if i % 10 == 0:
         print("frame error rate:", err_count / (i+1.0))
 print("frame error rate:", err_count / frame_count)
+
+f.close()
+
 #print("U:", U)
 #print("G:", G)
 #print("M:", encode_message(U, G))
