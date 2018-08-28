@@ -11,7 +11,7 @@ entity row_min is
 		row_in : in llr_row_t;
 		min_out, min2_out : out min_t;
 		min_id_out : out min_id_t;
-		offset : in min_t
+		offset : in min_id_t
 	);
 end entity;
 

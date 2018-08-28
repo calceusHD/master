@@ -40,6 +40,10 @@ entity fsm is
 		store_vn_addr : out row_addr_t;
 		load_vn_rd : out std_logic;
 		load_vn_addr : out row_addr_t;
+		store_signs_wr : out std_logic;
+		store_signs_addr : out signs_addr_t;
+		load_signs_rd : out std_logic;
+		load_signs_addr : out signs_addr_t;
 		min_offset : out min_id_t;
 		roll : out roll_t
 	);

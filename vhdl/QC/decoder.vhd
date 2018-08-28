@@ -11,7 +11,7 @@ entity decoder is
 		llr_in : in llr_column_t;
 		wr_in : in std_logic;
 		end_in : in std_logic;
-		res_out : out std_logic_vector;
+		res_out : out min_signs_t;
 		res_rd : out std_logic;
 		res_end : out std_logic
 
@@ -129,6 +129,7 @@ begin
 	--now follows the memory
 	
 	--oh no not the memory
+    
 	llr_mem_inst : entity work.llr_in_memory
 	port map (
 		clk => clk,
@@ -179,5 +180,16 @@ begin
 		sum_out => load_col_sum,
 		rd_in => load_vn_rd,
 		rd_addr => load_vn_addr
+	);
+
+	signs_memory_inst : entity work.signs_memory
+	port map (
+		clk => clk,
+		signs_in => store_signs,
+		wr_in => store_signs_wr,
+		wr_addr => store_signs_addr,
+		signs_out => load_signs,
+		rd_in => load_signs_rd,
+		rd_addr => load_signs_addr
 	);
 end architecture;

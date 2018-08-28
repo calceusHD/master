@@ -29,6 +29,7 @@ architecture base of cn_global is
 		for i in llr_in'range(2) loop
 			rv(i) := llr_in(pos, i);
 		end loop;
+        return rv;
 	end function;
 begin
 
