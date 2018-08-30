@@ -72,33 +72,52 @@ def generate_inst_list(Hqc):
     #so I wanna tightly pack all the signs i have to store so i need some type of offset for each valid position in my Hqc matrix
     sign_offset = numpy.reshape((numpy.cumsum((Hqc >= 0)[:]) - 1), Hqc.shape)
     for i in range(0, Hqc.shape[0]):
+        new_row = True
         for j in range(0, Hqc.shape[1]):
             if Hqc[i, j] >= 0:
-                if j == Hqc.shape[1] - 1:
+                if i == Hqc.shape[1] - 1:
                     store_cn_addr = i
                 else:
                     store_cn_addr = -1
 
-                insts.append((j == 0, False, -1, -1, store_cn_addr, i, -1, j, sign_offset[i, j], sign_offset[i, j], row_offsets[i, j] * block_weight, Hqc[i, j]))
+                insts.append((new_row, False, -1, -1, store_cn_addr, i, -1, j, sign_offset[i, j], sign_offset[i, j], row_offsets[i, j] * block_weight, Hqc[i, j]))
+                new_row = False
 
     for i in range(0, Hqc.shape[1]):
+        new_col = True
         for j in range(0, Hqc.shape[0]):
             if Hqc[j, i] >= 0:
-                if j == Hqc.shape[0]:
-                    store_vn_addr = j
+                if j == Hqc.shape[0] - 1:
+                    store_vn_addr = i
                 else:
                     store_vn_addr = -1
 
-                insts.append((False, j == 0, i if j == 0 else - 1, store_vn_addr, -1, j, store_vn_addr, -1, -1, sign_offset[j, i], 0, Hqc[j, i]))
-    print(insts)
+                insts.append((False, new_col, i if new_col else - 1, store_vn_addr, -1, j, store_vn_addr, -1, -1, sign_offset[j, i], 0, Hqc[j, i]))
+                new_col = False
+    rv = []
     print(len(insts))
-    return insts
+    for i in range(0, len(insts)-1):
+        row_end =           insts[i][0]
+        col_end =           insts[i][1]
+        llr_mem_addr =      insts[i + 1][2]
+        result_addr =       insts[i][3]
+        store_cn_addr =     insts[i][4]
+        load_cn_addr =      insts[i][5]
+        store_vn_addr =     insts[i][6]
+        load_vn_addr =      insts[i][7]
+        store_signs_addr =  insts[i][8]
+        load_signs_addr =   insts[i][9]
+        min_offset =        insts[i][10]
+        roll =              insts[i][11]
+        rv.append(generate_inst(row_end, col_end, llr_mem_addr, result_addr, store_cn_addr, load_cn_addr, store_vn_addr, load_vn_addr, store_signs_addr, load_signs_addr, min_offset, roll))
+    rv = ",\n".join(rv)
+    return rv, len(insts)-1
 
 
-generate_inst_list(Hqc)
+print(generate_inst_list(Hqc))
 
 #instruction width
-#row_end col_end llr_mem_rd llr_mem_addr result_addr result_wr store_cn_wr store_cn_addr load_cn_rd load_cn_addr store_vn_wr store_vn_addr load_vn_rd load_vn_addr
+#row_end col_end llr_mem_rd ll_mem_addr result_addr result_wr store_cn_wr store_cn_addr load_cn_rd load_cn_addr store_vn_wr store_vn_addr load_vn_rd load_vn_addr
 #1       1       1          row_bits     row_bits    1         1           col_bits      1          col_bits     1           row_bits      1          row_bits
 
 total_inst_bits = 8 + 4 * row_bits + 2 * col_bits
@@ -174,8 +193,8 @@ rv += """type inst_t is
     end record;
 """
 rv += "type inst_array_t is array(integer range <>) of inst_t;\n"
-inst_count = 2
-rv += "constant INSTRUCTIONS : inst_array_t(0 to " + str(inst_count) + "-1) := (" + generate_inst(False, False, 10, 0, 0, 0,  0, 0, 0, 0, 3, 7) + ",\n" + generate_inst(False, False, 10, 0, 0, 0, 0, 0, 0, 0, 3, 7) + ");\n"
+inst_str, inst_count = generate_inst_list(Hqc)
+rv += "constant INSTRUCTIONS : inst_array_t(0 to " + str(inst_count) + "-1) := (" + inst_str + ");\n"
 print(generate_inst(True, False, 1, 2, -1, 3, 4, 5, 6, 7, 8, 9))
 rv += "end package;"
 

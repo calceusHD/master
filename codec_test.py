@@ -2,6 +2,7 @@
 import numpy
 import scipy.io as sio
 #import matplotlib.pyplot as plt
+from scipy.linalg import lu, circulant
 
 import encode
 import decode
@@ -36,23 +37,26 @@ H = numpy.array([
 #H = sio.loadmat("20003000V2.mat")
 #H = H["Hqc2"]
 
+block_vector = numpy.zeros(27, dtype=Hqc.dtype)
+block_vector[0] = 1
+#block_vector[15] = 1
 
+print(circulant(block_vector))
 # fixed precomputation
-H = encode.qc_to_pcm(Hqc, 27)
+H = encode.qc_to_pcm(Hqc, block_vector)
 
-
+print(H)
 message_length = H.shape[1] - H.shape[0]
 #G = encode.calculate_G(H)
 ast = encode.encode_precompute(H, 27)
 
-block_vector = numpy.zeros(27, dtype=Hqc.dtype)
-block_vector[0] = 1
+#block_vector[3] = 1
         
-SIGMA = .35
+SIGMA = .1
 err_count = 0
-frame_count = 1
+frame_count = 100
 
-f = open("test.txt", "w")
+#f = open("test.txt", "w")
 
 def to_twoscomplement(value, bits):
     if value < 0:
@@ -61,8 +65,8 @@ def to_twoscomplement(value, bits):
     return formatstring.format(value)
 
 for i in range(0, frame_count):
-    if i % 10 == 0:
-        print(i)
+    #if i % 10 == 0:
+        #print(i)
     #encoding
     U = numpy.random.randint(2, size=(1,message_length))
     #M = numpy.transpose(encode.encode_message(U, G))
@@ -70,26 +74,32 @@ for i in range(0, frame_count):
     
     #channel
     e = numpy.random.standard_normal(M.shape) * SIGMA
-    X = M #+ e
+    X = M  #+ e
+
 
     #decoding
+    
     LLR = (1 - 2 * X) / (2 * SIGMA)
+    """
     test = numpy.reshape(LLR, (-1, 27)) * 10
     test = test.astype(int)
     for i in range(0, test.shape[0]):
         for j in range(0, test.shape[1]):
             f.write(to_twoscomplement(test[i,j],8))
         f.write("\n")
-    
-    #Xe = decode.decode_soft(LLR, H)
-    Xe = decode.decode_qc(LLR, Hqc, block_vector)
+    """
+    Xe = decode.decode_soft(LLR, H)[:,0]
+    #Xe = decode.decode_qc(LLR, Hqc, block_vector)
     if (numpy.sum(Xe != M[:,0]) != 0):
+        print("wrong")
         err_count += 1
+    else:
+        print("right")
     if i % 10 == 0:
         print("frame error rate:", err_count / (i+1.0))
 print("frame error rate:", err_count / frame_count)
 
-f.close()
+#f.close()
 
 #print("U:", U)
 #print("G:", G)

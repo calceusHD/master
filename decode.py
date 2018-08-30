@@ -2,22 +2,25 @@
 import numpy
 import math
 import numpy.random
+import encode
 
 def cn_global(current_min, current_min2, current_min_id, current_sign, block_vector, data_in, offset):
     #ahahahahahahrhgrhgrha y do i even allow non identity submatrices?!?!
     nonz = numpy.nonzero(block_vector)
     
     f = numpy.abs(data_in)
+    fs = numpy.copy(data_in)
     for i in range(0, f.shape[1]):
         f[:,i] = numpy.roll(f[:,i], -nonz[0][i])
+        fs[:,i] = numpy.roll(data_in[:,i], -nonz[0][i])
 
     new_min = numpy.min(numpy.column_stack((current_min, f)), axis=1)
     tmp = numpy.argmin(numpy.column_stack((current_min, f)), axis=1)
     new_min_id = (tmp > 0) * (offset + tmp - 1) + (tmp == 0) * current_min_id
     new_min2 = numpy.partition(numpy.column_stack((current_min, current_min2, f)), 1, axis=1)[:, 1]
 
-    new_sign = (current_sign + numpy.sum(data_in < 0, axis=1)) % 2
-    signs_out = data_in < 0
+    new_sign = (current_sign + numpy.sum(fs < 0, axis=1)) % 2
+    signs_out = fs < 0
 
     return new_min, new_min2, new_min_id, new_sign, signs_out
 
@@ -55,8 +58,10 @@ def decode_qc(X, Hqc, block_vector):
     # init
     X_block = numpy.reshape(X, (-1, block_size)).transpose()
     row_offsets = numpy.cumsum(Hqc >= 0, axis=1) - 1
+
+    full_H = encode.qc_to_pcm(Hqc, block_vector)
     
-    for it in range(0, 1):
+    for it in range(0, 20):
         
         #we start with the global check node calculation
         if it > 0:
@@ -82,7 +87,10 @@ def decode_qc(X, Hqc, block_vector):
                 gl_min2[:,i] = min2_tmp
                 gl_min_id[:,i] = min_id_tmp
                 gl_sign[:,i] = sign_tmp
+            #print(numpy.sum(gl_sign), numpy.sum(numpy.dot(full_H, numpy.reshape(vn_sums.transpose(), (-1)) < 0) % 2))
 
+            if numpy.sum(numpy.dot(full_H, numpy.reshape(vn_sums.transpose(), (-1)) < 0) % 2) == 0:
+                break
         #as the local check node calculation stores no state it will only be implicitly used
         #now follows the global variable node, this basically sums all columns
         for i in range(0, Hqc.shape[1]):
@@ -95,6 +103,7 @@ def decode_qc(X, Hqc, block_vector):
                     current_data = numpy.roll(current_data, Hqc[j, i], axis=0)
                     sum_tmp = vn_global(sum_tmp, current_data)
             vn_sums[:,i] = sum_tmp
+    #print(gl_sign)
     return 1 * (numpy.reshape(vn_sums.transpose(), (-1)) < 0)
 
 def decode_hard(X, H):

@@ -8,32 +8,32 @@ entity vn_global_accu is
     port (
         clk : in std_logic;
         
-        data_in : llr_array_t;
+        data_in : in llr_array_t;
 
         col_end : in std_logic;
-        preload_in : column_sum_array_t;
+        preload_in : in column_sum_array_t;
         
-        sum_out : column_sum_array_t
+        sum_out : out column_sum_array_t
     );
 end entity;
 
 architecture base of vn_global_accu is
     signal sum_acc, sum_res : column_sum_array_t;
-    signal load : std_logic;
 begin
     
     process (clk)
     begin
         if rising_edge(clk) then
             if col_end = '1' then
-                load <= '1';
+                sum_acc <= preload_in;
             else
-                load <= '0';
+                sum_acc <= sum_res;
             end if;
         end if;
     end process;
 
-    sum_acc <= preload_in when load = '1' else sum_res;
+    sum_out <= sum_res;
+
 
     node : entity work.vn_global
     port map (

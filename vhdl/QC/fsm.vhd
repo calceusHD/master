@@ -54,7 +54,30 @@ architecture base of fsm is
 	signal current_inst : inst_t;
 	type states_t is (FSM_IDLE, FSM_WORK);
 	signal state : states_t := FSM_IDLE;
+    signal done_int : std_logic;
 begin
+
+    row_end <= current_inst.row_end;
+    col_end <= current_inst.col_end;
+    llr_mem_rd <= current_inst.llr_mem_rd;
+    llr_mem_addr <= current_inst.llr_mem_addr;
+    result_wr <= current_inst.result_wr;
+    result_addr <= current_inst.result_addr;
+    store_cn_wr <= current_inst.store_cn_wr;
+    store_cn_addr <= current_inst.store_cn_addr;
+    load_cn_rd <= current_inst.load_cn_rd;
+    load_cn_addr <= current_inst.load_cn_addr;
+    store_vn_wr <= current_inst.store_vn_wr;
+    store_vn_addr <= current_inst.store_vn_addr;
+    load_vn_rd <= current_inst.load_vn_rd;
+    load_vn_addr <= current_inst.load_vn_addr;
+    store_signs_wr <= current_inst.store_signs_wr;
+    store_signs_addr <= current_inst.store_signs_addr;
+    load_signs_rd <= current_inst.load_signs_rd;
+    load_signs_addr <= current_inst.load_signs_addr;
+    min_offset <= current_inst.min_offset;
+    roll <= current_inst.roll;
+
 	process (clk)
 	begin
 		if rising_edge(clk) then
@@ -64,6 +87,9 @@ begin
 				if start = '1' then
 					state <= FSM_WORK;
 				end if;
+                if done_int = '1' then
+                    state <= FSM_IDLE;
+                end if;
 			end if;
 		end if;
 	end process;
@@ -73,8 +99,13 @@ begin
 		if rising_edge(clk) then
 			if state = FSM_WORK then
 				current_inst <= INSTRUCTIONS(to_integer(inst_read_addr));
-                inst_read_addr <= inst_read_addr + 1;
+                if inst_read_addr = INSTRUCTIONS'high then
+                    done_int <= '1';
+                else
+                    inst_read_addr <= inst_read_addr + 1;
+                end if;
             else
+                done_int <= '0';
                 inst_read_addr <= (others => '0');
             end if;
         end if;

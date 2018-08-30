@@ -90,7 +90,7 @@ begin
 	vn_global_inst : entity work.vn_global_accu
 	port map (
 		clk => clk,
-		data_in => vn_local_cn_global,
+		data_in => roll_vn,
 		col_end => col_end,
 		preload_in => current_llr_in,
 		sum_out => store_col_sum

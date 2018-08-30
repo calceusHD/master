@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import numpy
-from scipy.linalg import lu
+from scipy.linalg import lu, circulant
 from numpy.linalg import matrix_rank
 
 def calculate_G(Hin):
@@ -64,12 +64,14 @@ def calculate_G(Hin):
 def encode_message(x, G):
     return numpy.dot(x, G) % 2;
 
-def qc_to_pcm(Hin, bs):
+def qc_to_pcm(Hin, block_vector):
+    bs = block_vector.shape[0]
     Hout = numpy.zeros(numpy.array(Hin.shape) * bs, dtype=Hin.dtype)
     for i in range(0, Hin.shape[0]):
         for j in range(0, Hin.shape[1]):
             if Hin[i, j] >= 0:
-                Hout[i * bs:(i + 1) * bs, j * bs:(j + 1) * bs] = numpy.roll(numpy.identity(bs), Hin[i, j], axis=1)
+                print(numpy.roll(circulant(block_vector), Hin[i, j], axis=1))
+                Hout[i * bs:(i + 1) * bs, j * bs:(j + 1) * bs] = numpy.roll(circulant(block_vector), Hin[i, j], axis=1)
     return Hout
 
 def L_inv(A):
@@ -115,7 +117,7 @@ def encode_ast(pre, s):
     return numpy.concatenate((numpy.transpose(s), p1, p2))
 
 
-
+"""
 
 Hqc = numpy.array([
     [ 0, -1, -1, -1,  0,  0, -1, -1,  0, -1, -1,  0,  1,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
@@ -145,4 +147,4 @@ M = encode_ast(pre, U)
 #print(M)
 M2 = numpy.transpose(encode_message(U, G))
 #print(M == M2)
-
+"""
