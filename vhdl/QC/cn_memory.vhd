@@ -40,8 +40,8 @@ begin
 
 	min2_gen : for i in min2_in'range generate
 		constant offset : natural := min_in'length * min_in(0)'length;
-		constant start : natural := (i+1) * min2_in(0)'length-1;
-		constant stop : natural := i * min2_in(0)'length;
+		constant start : natural := (i+1) * min2_in(0)'length-1 + offset;
+		constant stop : natural := i * min2_in(0)'length + offset;
 	begin
 		conc_in(start downto stop) <= std_logic_vector(min2_in(i));
 		min2_out(i) <= unsigned(conc_out(start downto stop));
@@ -49,8 +49,8 @@ begin
 
 	min_id_gen : for i in min_id_in'range generate
 		constant offset : natural := min_in'length * min_in(0)'length * 2;
-		constant start : natural := (i+1) * min_id_in(0)'length-1;
-		constant stop : natural := i * min_id_in(0)'length;
+		constant start : natural := (i+1) * min_id_in(0)'length-1 + offset;
+		constant stop : natural := i * min_id_in(0)'length + offset;
 	begin
 		conc_in(start downto stop) <= std_logic_vector(min_id_in(i));
 		min_id_out(i) <= unsigned(conc_out(start downto stop));
