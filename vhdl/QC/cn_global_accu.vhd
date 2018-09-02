@@ -25,23 +25,29 @@ architecture base of cn_global_accu is
 	signal min_acc, min2_acc, min_res, min2_res : min_array_t;
 	signal min_id_acc, min_id_res : min_id_array_t;
 	signal sign_acc, sign_res : min_signs_t;
-	signal load : std_logic;
 begin
+
+	min_out <=  min_res;
+	min2_out <= min2_res;
+	min_id_out <= min_id_res;
+	sign_out <= sign_res;
+
 	process (clk) 
 	begin
 		if rising_edge(clk) then
 			if row_end = '1' then
-				load <= '1';
+				min_acc <= (others => (others => '1'));
+				min2_acc <= (others => (others => '1'));
+				min_id_acc <= (others => (others => '0'));
+				sign_acc <= (others => '0');
 			else
-				load <= '0';
+				min_acc <= min_res;
+				min2_acc <= min2_res;
+				min_id_acc <= min_id_res;
+				sign_acc <= sign_res;
 			end if;
         end if;
     end process;
-
-	min_acc <= (others => (others => '1')) when load = '1' else min_res;
-    min2_acc <= (others => (others => '1')) when load = '1' else min2_res;
-    min_id_acc <= (others => (others => '0')) when load = '1' else min_id_res;
-    sign_acc <= (others => '0') when load = '1' else sign_res;
 
 
 	node : entity work.cn_global
