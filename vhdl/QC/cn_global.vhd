@@ -31,7 +31,10 @@ architecture base of cn_global is
 		end loop;
         return rv;
 	end function;
+	signal signs_out_int : signs_t;
 begin
+	
+	signs_out <= signs_out_int;
 
 	roller : entity work.fixed_roll
 	generic map (ROLL_COUNTS => ROLL_COUNT)
@@ -43,8 +46,9 @@ begin
     begin
         sign_j : for j in data_in'range(2) generate
         begin
-            signs_out(i)(j) <= '1' when data_in(i, j) < 0 else '0';
+            signs_out_int(i)(j) <= '1' when data_in(i, j) < 0 else '0';
         end generate;
+		sign_out(i) <= xor signs_out_int(i);
     end generate;
     
     min_gen : for i in data_in'range generate
