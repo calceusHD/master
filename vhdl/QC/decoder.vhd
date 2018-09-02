@@ -54,6 +54,10 @@ begin
 		store_vn_addr => store_vn_addr,
 		load_vn_rd => load_vn_rd,
 		load_vn_addr => load_vn_addr,
+		store_signs_wr => store_signs_wr,
+		store_signs_addr => store_signs_addr,
+		load_signs_rd => load_signs_rd,
+		load_signs_addr => load_signs_addr,
 		min_offset => offset,
 		roll => roll
 	);
