@@ -100,7 +100,11 @@ begin
 			if state = FSM_WORK then
 				current_inst <= INSTRUCTIONS(to_integer(inst_read_addr));
                 if inst_read_addr = INSTRUCTIONS'high then
-                    done_int <= '1';
+					if no_error = '1' then
+                    	done_int <= '1';
+					else
+						inst_read_addr <= (others => '0');
+					end if;
                 else
                     inst_read_addr <= inst_read_addr + 1;
                 end if;
