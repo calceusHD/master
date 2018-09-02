@@ -20,9 +20,9 @@ begin
 		process (data_in, sum_in)
 			variable tmp : column_sum_t := (others => '0');
 		begin
-			--gen_j : for j in data_in'range(2) loop
-            	tmp := resize(data_in(i, 0), tmp'length);
-			--end loop;
+			gen_j : for j in data_in'range(2) loop
+            	tmp := tmp + resize(data_in(i, 0), tmp'length);
+			end loop;
         	sum_out(i) <= tmp + sum_in(i);
 		end process;
     end generate;

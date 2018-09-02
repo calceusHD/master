@@ -23,8 +23,11 @@ begin
 		variable min2_rv : min_t := min2_in;
 		variable row_tmp : min_t;
 	begin
+		min_rv := min_in;
 		for i in row_in'range loop
 			row_tmp := to_unsigned(to_integer(abs(row_in(i))), row_tmp'length);
+			report "Row_tmp" & to_hstring(row_tmp);
+			report "Min_rv" & to_hstring(min_rv);
 			if row_tmp < min_rv then
 				min2_rv := min_rv;
 				min_rv := row_tmp;
