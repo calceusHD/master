@@ -20,7 +20,7 @@ llr_bits = 8
 
 block_vector = numpy.zeros(27, dtype='intc')
 block_vector[0] = 1
-block_vector[5] = 1
+#block_vector[5] = 1
 
 block_size = 27
 
@@ -40,8 +40,13 @@ Hqc = numpy.array([
     [25, -1,  8, -1, 23, 18, -1, 14,  9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0],
     [ 3, -1, -1, -1, 16, -1, -1,  2, 25,  5, -1, -1,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0]])
 
+max_col_weight = block_weight * numpy.max(numpy.sum(Hqc >= 0, axis=0))
 max_row_weight = block_weight * numpy.max(numpy.sum(Hqc >= 0, axis=1))
+col_sum_extra = math.ceil(math.log2(max_col_weight))
 row_sum_extra = math.ceil(math.log2(max_row_weight))
+
+print("col_weight:", max_col_weight)
+print("col_extra :", col_sum_extra)
 
 roll_bits = math.ceil(math.log2(block_size))
 
@@ -74,6 +79,7 @@ def generate_inst_list(Hqc):
     col_end = (Hqc >= 0).cumsum(0).argmax(0)
     row_end = (Hqc >= 0).cumsum(1).argmax(1)
     
+    insts.append((False, False, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0))
     print(col_end)
     print(row_end)
     for i in range(0, Hqc.shape[0]):
@@ -95,26 +101,29 @@ def generate_inst_list(Hqc):
             if Hqc[j, i] >= 0:
                 if j == col_end[i]:
                     store_vn_addr = i
+                    print("store at", i)
                 else:
                     store_vn_addr = -1
 
                 insts.append((False, new_col, i if new_col else - 1, store_vn_addr, -1, j, store_vn_addr, -1, -1, sign_offset[j, i], 0, Hqc[j, i]))
                 new_col = False
     rv = []
+    insts.append((False, False, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0))
+    insts.append((False, False, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0))
     print(len(insts))
     for i in range(0, len(insts)-1):
         row_end =           insts[i][0]
         col_end =           insts[i][1]
         llr_mem_addr =      insts[i + 1][2]
         result_addr =       insts[i][3]
-        store_cn_addr =     insts[i][4]
+        store_cn_addr =     insts[i - 1][4]
         load_cn_addr =      insts[i][5]
-        store_vn_addr =     insts[i][6]
+        store_vn_addr =     insts[i - 1][6]
         load_vn_addr =      insts[i][7]
         store_signs_addr =  insts[i - 1][8]
         load_signs_addr =   insts[i][9]
-        min_offset =        insts[i][10]
-        roll =              insts[i][11]
+        min_offset =        insts[i - 1][10]
+        roll =              insts[i - 1][11]
         rv.append(generate_inst(row_end, col_end, llr_mem_addr, result_addr, store_cn_addr, load_cn_addr, store_vn_addr, load_vn_addr, store_signs_addr, load_signs_addr, min_offset, roll))
     rv = ",\n".join(rv)
     return rv, len(insts)-1
@@ -145,7 +154,7 @@ rv += "type llr_column_t is array(0 to " + str(block_size) + "-1) of signed(" + 
 
 
 #column sum array
-rv += "subtype column_sum_t is signed(" + str(llr_bits + row_sum_extra) + "-1 downto 0);\n"
+rv += "subtype column_sum_t is signed(" + str(llr_bits + col_sum_extra) + "-1 downto 0);\n"
 rv += "type column_sum_array_t is array(0 to " + str(block_size) + "-1) of column_sum_t;\n"
 rv += "subtype min_signs_t is std_logic_vector(0 to " + str(block_size) + "-1);\n"
 
