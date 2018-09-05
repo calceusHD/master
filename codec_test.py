@@ -44,7 +44,7 @@ block_vector[0] = 1
 # fixed precomputation
 H = encode.qc_to_pcm(Hqc, block_vector)
 numpy.set_printoptions(threshold=numpy.inf)
-print(H)
+#print(H)
 message_length = H.shape[1] - H.shape[0]
 #G = encode.calculate_G(H)
 ast = encode.encode_precompute(H, 27)
@@ -55,8 +55,8 @@ SIGMA = .1
 err_count = 0
 frame_count = 1
 
-print(H)
-#f = open("test.txt", "w")
+#print(H)
+f = open("test.txt", "w")
 
 def to_twoscomplement(value, bits):
     if value < 0:
@@ -83,12 +83,12 @@ for i in range(0, frame_count):
     
     test = numpy.reshape(LLR, (-1, block_vector.shape[0])) * 10
     test = test.astype(int)
-    """
+    
     for i in range(0, test.shape[0]):
         for j in range(0, test.shape[1]):
             f.write(to_twoscomplement(test[i,j],8))
         f.write("\n")
-    """
+    
     LLR = test
     #Xe = decode.decode_soft(LLR, H)[:,0]
     Xe = decode.decode_qc(LLR, Hqc, block_vector)
@@ -101,7 +101,7 @@ for i in range(0, frame_count):
         print("frame error rate:", err_count / (i+1.0))
 print("frame error rate:", err_count / frame_count)
 
-#f.close()
+f.close()
 
 #print("U:", U)
 #print("G:", G)

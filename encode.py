@@ -70,7 +70,7 @@ def qc_to_pcm(Hin, block_vector):
     for i in range(0, Hin.shape[0]):
         for j in range(0, Hin.shape[1]):
             if Hin[i, j] >= 0:
-                print(numpy.roll(circulant(block_vector), Hin[i, j], axis=1))
+                #print(numpy.roll(circulant(block_vector), Hin[i, j], axis=1))
                 Hout[i * bs:(i + 1) * bs, j * bs:(j + 1) * bs] = numpy.roll(circulant(block_vector), Hin[i, j], axis=1)
     return Hout
 

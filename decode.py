@@ -61,7 +61,7 @@ def decode_qc(X, Hqc, block_vector):
 
     full_H = encode.qc_to_pcm(Hqc, block_vector)
     
-    for it in range(0, 20):
+    for it in range(0, 3):
         
         #we start with the global check node calculation
         if it > 0:
@@ -77,11 +77,10 @@ def decode_qc(X, Hqc, block_vector):
                         current_data = numpy.roll(current_data, Hqc[i, j], axis=0)
                         current_data = vn_local(vn_sums[:,j], current_data)
                         current_data = numpy.roll(current_data, -Hqc[i, j], axis=0)
-                        
                         min_tmp, min2_tmp, min_id_tmp, sign_tmp, sign_res = cn_global(min_tmp, min2_tmp, min_id_tmp, sign_tmp, block_vector, current_data, j * block_weight)
                         signs[i * block_size:(i + 1) * block_size, row_os * block_weight:(row_os + 1) * block_weight] = sign_res
                         row_os += 1
-
+                
                 #when we collect all data from a row we write it to the global arrays
                 gl_min[:,i] = min_tmp
                 gl_min2[:,i] = min2_tmp
@@ -91,6 +90,7 @@ def decode_qc(X, Hqc, block_vector):
 
             if numpy.sum(numpy.dot(full_H, numpy.reshape(vn_sums.transpose(), (-1)) < 0) % 2) == 0:
                 break
+
         #as the local check node calculation stores no state it will only be implicitly used
         #now follows the global variable node, this basically sums all columns
         for i in range(0, Hqc.shape[1]):
@@ -101,8 +101,10 @@ def decode_qc(X, Hqc, block_vector):
                     current_data = cn_local(gl_min[:,j], gl_min2[:,j], gl_min_id[:,j], gl_sign[:,j], signs, row_os * block_weight, block_weight, j, block_size, i)
 
                     current_data = numpy.roll(current_data, Hqc[j, i], axis=0)
+                    print(current_data[0])
                     sum_tmp = vn_global(sum_tmp, current_data)
             vn_sums[:,i] = sum_tmp
+    
     #print(gl_sign)
     return 1 * (numpy.reshape(vn_sums.transpose(), (-1)) < 0)
 
