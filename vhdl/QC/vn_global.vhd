@@ -12,7 +12,7 @@ entity vn_global is
     );
 end entity;
 
-architecture default of vn_global is
+architecture base of vn_global is
 
 begin
 	gen_i : for i in data_in'range(1) generate
@@ -20,8 +20,9 @@ begin
 		process (data_in, sum_in)
 			variable tmp : column_sum_t := (others => '0');
 		begin
+			tmp := (others => '0');
 			gen_j : for j in data_in'range(2) loop
-            	tmp := tmp + resize(data_in(i, 0), tmp'length);
+            	tmp := tmp + resize(data_in(i, j), tmp'length);
 			end loop;
         	sum_out(i) <= tmp + sum_in(i);
 		end process;

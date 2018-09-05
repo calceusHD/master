@@ -12,7 +12,7 @@ entity vn_local is
     );
 end entity;
 
-architecture default of vn_local is
+architecture base of vn_local is
 
 begin
     gen_i : for i in data_in'range(1) generate

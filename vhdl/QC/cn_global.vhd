@@ -23,6 +23,15 @@ end entity;
 architecture base of cn_global is
 	signal data_rolled : llr_array_t;
 
+	function xor_reduce(data_in : std_logic_vector) return std_logic is
+		variable rv : std_logic := '0';
+	begin
+		for i in data_in'range loop
+			rv := rv xor data_in(i);
+		end loop;
+		return rv;
+	end function;
+
 	function llr_slice(llr_in : llr_array_t; pos : natural) return llr_row_t is
 		variable rv : llr_row_t;
 	begin
@@ -48,7 +57,7 @@ begin
         begin
             signs_out_int(i)(j) <= '1' when data_in(i, j) < 0 else '0';
         end generate;
-		sign_out(i) <= xor signs_out_int(i);
+		sign_out(i) <= xor_reduce(signs_out_int(i)); -- xor sign_in(i);
     end generate;
     
     min_gen : for i in data_in'range generate

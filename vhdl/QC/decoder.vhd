@@ -12,7 +12,7 @@ entity decoder is
 		wr_in : in std_logic;
 		end_in : in std_logic;
 		res_out : out min_signs_t;
-		res_rd : out std_logic;
+		res_rd : in std_logic;
 		res_end : out std_logic
 
 	);
@@ -34,6 +34,11 @@ architecture base of decoder is
 	signal store_result : min_signs_t;
 	signal store_signs_addr, load_signs_addr : signs_addr_t;
 begin
+	
+	gen_result : for i in store_result'range generate
+		store_result(i) <= '1' when  store_col_sum(i) < 0 else '0';
+	end generate;
+
 	fsm_inst : entity work.fsm
 	port map (
 		clk => clk,

@@ -16,7 +16,7 @@ entity cn_local is
     );
 end entity;
 
-architecture default of cn_local is
+architecture base of cn_local is
     signal signless_rv : llr_array_t;
 begin
     gen_i : for i in signless_rv'range(1) generate
