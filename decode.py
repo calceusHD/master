@@ -101,7 +101,6 @@ def decode_qc(X, Hqc, block_vector):
                     current_data = cn_local(gl_min[:,j], gl_min2[:,j], gl_min_id[:,j], gl_sign[:,j], signs, row_os * block_weight, block_weight, j, block_size, i)
 
                     current_data = numpy.roll(current_data, Hqc[j, i], axis=0)
-                    print(current_data[0])
                     sum_tmp = vn_global(sum_tmp, current_data)
             vn_sums[:,i] = sum_tmp
     

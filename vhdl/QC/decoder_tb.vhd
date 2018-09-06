@@ -10,7 +10,7 @@ entity decoder_tb is
 end entity;
 
 architecture test of decoder_tb is
-    signal clk, res, wr_in, end_in : std_logic := '0';
+    signal clk, res, wr_in, end_in, res_rd : std_logic := '0';
     signal llr_in : llr_column_t;
     
     procedure read_llr_column(variable line_in : inout line; rv : out llr_column_t) is
@@ -42,7 +42,7 @@ begin
 		
 		file_open(test_data, "../../test.txt", read_mode);
 		wr_in <= '1';
-		for i in 0 to 23 loop
+		for i in 0 to 65 loop
 			report "test";
 			readline(test_data, in_line);
 			read_llr_column(in_line, llr_temp);
@@ -73,7 +73,8 @@ begin
         res => res,
         llr_in => llr_in,
         wr_in => wr_in,
-        end_in => end_in
+        end_in => end_in,
+        res_rd => res_rd
     );
 
 end architecture;

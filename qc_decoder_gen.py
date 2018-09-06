@@ -16,13 +16,13 @@ def generate_addr_pair(name, val, d, length):
     return rv
 
 
-llr_bits = 8
+llr_bits = 6
 
 block_vector = numpy.zeros(27, dtype='intc')
 block_vector[0] = 1
 #block_vector[5] = 1
 
-block_size = 27
+block_size = 127
 
 block_weight = numpy.sum(block_vector)
 
@@ -40,6 +40,8 @@ Hqc = numpy.array([
     [25, -1,  8, -1, 23, 18, -1, 14,  9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0],
     [ 3, -1, -1, -1, 16, -1, -1,  2, 25,  5, -1, -1,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0]])
 
+Hqc = numpy.load("test_mat.npy")
+
 max_col_weight = block_weight * numpy.max(numpy.sum(Hqc >= 0, axis=0))
 max_row_weight = block_weight * numpy.max(numpy.sum(Hqc >= 0, axis=1))
 col_sum_extra = math.ceil(math.log2(max_col_weight))
@@ -49,7 +51,7 @@ print("col_weight:", max_col_weight)
 print("col_extra :", col_sum_extra)
 
 roll_bits = math.ceil(math.log2(block_size))
-
+print(roll_bits)
 row_bits = math.ceil(math.log2(Hqc.shape[1]))
 col_bits = math.ceil(math.log2(Hqc.shape[0]))
 sign_store_bits = math.ceil(math.log2(numpy.sum(Hqc >= 0)))
@@ -80,15 +82,13 @@ def generate_inst_list(Hqc):
     row_end = (Hqc >= 0).cumsum(1).argmax(1)
     
     insts.append((False, False, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0))
-    print(col_end)
-    print(row_end)
     for i in range(0, Hqc.shape[0]):
         new_row = True
         for j in range(0, Hqc.shape[1]):
             if Hqc[i, j] >= 0:
                 if j == row_end[i]:
                     store_cn_addr = i
-                    print("dong")
+ 
                 else:
                     store_cn_addr = -1
 
@@ -101,7 +101,7 @@ def generate_inst_list(Hqc):
             if Hqc[j, i] >= 0:
                 if j == col_end[i]:
                     store_vn_addr = i
-                    print("store at", i)
+
                 else:
                     store_vn_addr = -1
 
@@ -136,8 +136,8 @@ def generate_inst_list(Hqc):
 #row_end col_end llr_mem_rd ll_mem_addr result_addr result_wr store_cn_wr store_cn_addr load_cn_rd load_cn_addr store_vn_wr store_vn_addr load_vn_rd load_vn_addr
 #1       1       1          row_bits     row_bits    1         1           col_bits      1          col_bits     1           row_bits      1          row_bits
 
-total_inst_bits = 8 + 4 * row_bits + 2 * col_bits
-
+total_inst_bits = 10 + 4 * row_bits + 2 * col_bits + 2 * sign_store_bits + row_sum_extra + roll_bits
+print("inst_bist", total_inst_bits)
 
 #generate types
 rv = """
@@ -184,6 +184,7 @@ rv += "constant HQC_COLUMNS : natural := " + str(Hqc.shape[1]) + ";\n"
 
 rv += "constant VN_MEM_BITS : natural := " + str(row_bits) + ";\n"
 rv += "constant CN_MEM_BITS : natural := " + str(col_bits) + ";\n"
+rv += "subtype vec_inst_t is std_logic_vector(" + str(total_inst_bits) + "-1 downto 0);\n"
 rv += """type inst_t is 
     record
         row_end : std_logic;
@@ -208,11 +209,65 @@ rv += """type inst_t is
         roll : roll_t;
     end record;
 """
-rv += "type inst_array_t is array(integer range <>) of inst_t;\n"
+def gen_record(names, widths):
+    s = 0
+    rv = ""
+    for i in range(len(names)):
+        rv += "rv(" + str(s + widths[i]) + "-1"
+        if widths[i] != 1:
+            rv += " downto " + str(s) 
+        rv += ") := "
+        if widths[i] == 1:
+            rv += "int_in." + names[i]
+        else:
+            rv += "std_logic_vector(int_in." + names[i] + ")"
+        rv += ";\n"
+        s += widths[i]
+    return rv
+
+def ungen_record(names, widths):
+    s = 0
+    rv = ""
+    for i in range(len(names)):
+        rv += "rv." + names[i] + ":= "
+        if widths[i] != 1:
+            rv += "unsigned"
+        rv += "(int_in(" + str(s + widths[i]) + "-1"
+        if widths[i] != 1:
+            rv += " downto " + str(s)
+        rv += "));\n"
+        s += widths[i]
+    return rv
+rv += "function pack(int_in : inst_t) return std_logic_vector;\n"
+rv += "function unpack(int_in : std_logic_vector) return inst_t;\n"
+
+
+rv += "type inst_array_t is array(integer range <>) of vec_inst_t;\n"
 inst_str, inst_count = generate_inst_list(Hqc)
 rv += "constant INSTRUCTIONS : inst_array_t(0 to " + str(inst_count) + "-1) := (" + inst_str + ");\n"
-#print(generate_inst(True, False, 1, 2, -1, 3, 4, 5, 6, 7, 8, 9))
-rv += "end package;"
+
+
+
+rv += "end package;\n"
+
+rv += "package body common is\n"
+names = ["row_end", "col_end", "llr_mem_rd", "llr_mem_addr", "result_addr", "result_wr", "store_cn_wr", "store_cn_addr", "load_cn_rd", "load_cn_addr", "store_vn_wr", "store_vn_addr", "load_vn_rd", "load_vn_addr", "store_signs_wr", "store_signs_addr", "load_signs_rd", "load_signs_addr", "min_offset", "roll"]
+widths = [1, 1, 1, row_bits, row_bits, 1, 1, col_bits, 1, col_bits, 1, row_bits, 1, row_bits, 1, sign_store_bits, 1, sign_store_bits, row_sum_extra, roll_bits]
+#types = ["", "", "", "unsigned", "unsignes", "", "", "unsigned", "", "unsigned", "", "unsigned", "", "unsigned", "", "unsigned", "unsigned", "
+rv += """function pack(int_in : inst_t) return std_logic_vector is
+variable rv : vec_inst_t;
+begin
+""" + gen_record(names, widths) + """return rv;
+end function;\n"""
+
+rv += """function unpack(int_in : std_logic_vector) return inst_t is
+variable rv : inst_t;
+begin
+""" + ungen_record(names, widths) + """return rv;
+end function;\n"""
+
+
+rv += "end package body;\n"
 
 
 f = open("./vhdl/QC/generated_common.vhd", "w")
