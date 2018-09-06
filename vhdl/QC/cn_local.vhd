@@ -32,6 +32,7 @@ begin
     attach_inst : entity work.attach_signs
     port map (
         signless_in => signless_rv,
+        sign_in => sign_in,
         signs_in => signs,
         signed_out => data_out
     );

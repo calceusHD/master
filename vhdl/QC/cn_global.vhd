@@ -57,7 +57,7 @@ begin
         begin
             signs_out_int(i)(j) <= '1' when data_in(i, j) < 0 else '0';
         end generate;
-		sign_out(i) <= xor_reduce(signs_out_int(i)); -- xor sign_in(i);
+		sign_out(i) <= xor_reduce(signs_out_int(i)) xor sign_in(i);
     end generate;
     
     min_gen : for i in data_in'range generate

@@ -8,6 +8,7 @@ entity attach_signs is
 	port (
 		signless_in : in llr_array_t;
 		signs_in : in signs_t;
+        sign_in : in min_signs_t;
 		signed_out : out llr_array_t
 	);
 end entity;
@@ -19,7 +20,7 @@ begin
 	begin
 		gen_j : for j in signless_in'range(2) generate
 		begin
-			signed_out(i, j) <= - signless_in(i, j) when signs_in(i)(j) = '1' else signless_in(i, j);
+			signed_out(i, j) <= - signless_in(i, j) when (signs_in(i)(j) xor sign_in(i)) = '1' else signless_in(i, j);
 		end generate;
 	end generate;
 end architecture;
