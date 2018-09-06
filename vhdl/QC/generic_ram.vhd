@@ -19,16 +19,18 @@ end entity;
 architecture base of generic_ram is
 	type ram_t is array(0 to 2**wr_addr'length-1) of std_logic_vector(wr_data'range);
 	signal memory : ram_t;
+    signal rd_data_reg : std_logic_vector(rd_data'range);
 begin
 	process (clk)
 	begin
 		if rising_edge(clk) then
+            rd_data <= rd_data_reg;
 			if wr_en = '1' then
 				memory(to_integer(unsigned(wr_addr))) <= wr_data;
 			end if;
 
 			if rd_en = '1' then
-				rd_data <= memory(to_integer(unsigned(rd_addr)));
+				rd_data_reg <= memory(to_integer(unsigned(rd_addr)));
 			end if;
 		end if;
 	end process;
