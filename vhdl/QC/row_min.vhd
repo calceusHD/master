@@ -17,13 +17,15 @@ end entity;
 
 architecture base of row_min is
 begin
-	process (min_in, min2_in, min_id_in, row_in)
-		variable id_rv : min_id_t := min_id_in;
-		variable min_rv : min_t := min_in;
-		variable min2_rv : min_t := min2_in;
+	process (min_in, min2_in, min_id_in, row_in, offset)
+		variable id_rv : min_id_t;
+		variable min_rv : min_t;
+		variable min2_rv : min_t;
 		variable row_tmp : min_t;
 	begin
 		min_rv := min_in;
+        min2_rv := min2_in;
+        id_rv := min_id_in;
 		for i in row_in'range loop
 			row_tmp := to_unsigned(to_integer(abs(row_in(i))), row_tmp'length);
 			--report "Row_tmp" & to_hstring(row_tmp);
