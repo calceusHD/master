@@ -61,8 +61,7 @@ def decode_qc(X, Hqc, block_vector):
 
     full_H = encode.qc_to_pcm(Hqc, block_vector)
     
-    for it in range(0, 3):
-        
+    for it in range(0, 10):
         #we start with the global check node calculation
         if it > 0:
             for i in range(0, Hqc.shape[0]):
@@ -185,7 +184,7 @@ def decode_soft(X, H):
             if H[i, j] == 1:
                 tmp.append(X[j][0])
         v_to_c.append(tmp)
-    for it in range(0, 10):
+    for it in range(0, 50):
         c_to_v = [[] for _ in range(H.shape[1])]
         for i in range(0, H.shape[0]):
             signpro = 1
