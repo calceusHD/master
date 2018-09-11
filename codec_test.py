@@ -61,7 +61,7 @@ SIGMA = math.sqrt(.25 / ebn0)
 err_count = 0
 bit_err_count = 0
 bit_err_count2 = 0
-frame_count = 1000
+frame_count = 1
 
 #print(H)
 f = open("test.txt", "w")
@@ -88,22 +88,26 @@ for fc in range(0, frame_count):
     #decoding
     
     LLR = (1 - 2 * X) / (2 * SIGMA)
-    """
+    
     test = numpy.reshape(LLR, (-1, block_vector.shape[0])) * 10
     test = test.astype(int)
+
+    testM = numpy.reshape(M, (-1, block_vector.shape[0]))
     
     for i in range(0, test.shape[0]):
         for j in range(0, test.shape[1]):
             f.write(to_twoscomplement(test[i,j],8))
+            print(testM[i, j], end='')
+        print('')
         f.write("\n")
-    """
-    #LLR = test
+    
+    LLR = numpy.reshape(test, (-1, 1))
     #print(LLR.shape)
-    Xe2 = decode.decode_soft(LLR, H)[:,0]
+    #Xe2 = decode.decode_soft(LLR, H)[:,0]
     Xe = decode.decode_qc(LLR, Hqc, block_vector)
     su = numpy.sum(Xe != M[:,0])
     bit_err_count += su
-    bit_err_count2 += numpy.sum(Xe2 != M[:,0])
+    #bit_err_count2 += numpy.sum(Xe2 != M[:,0])
     if (su != 0):
         #print("wrong")
         err_count += 1

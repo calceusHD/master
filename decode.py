@@ -86,10 +86,6 @@ def decode_qc(X, Hqc, block_vector):
                 gl_min_id[:,i] = min_id_tmp
                 gl_sign[:,i] = sign_tmp
             #print(numpy.sum(gl_sign), numpy.sum(numpy.dot(full_H, numpy.reshape(vn_sums.transpose(), (-1)) < 0) % 2))
-
-            if numpy.sum(numpy.dot(full_H, numpy.reshape(vn_sums.transpose(), (-1)) < 0) % 2) == 0:
-                break
-
         #as the local check node calculation stores no state it will only be implicitly used
         #now follows the global variable node, this basically sums all columns
         for i in range(0, Hqc.shape[1]):
@@ -98,11 +94,13 @@ def decode_qc(X, Hqc, block_vector):
                 if Hqc[j, i] >= 0:
                     row_os = row_offsets[j, i] # this has to be stored some better way, maybe as part of the instruction
                     current_data = cn_local(gl_min[:,j], gl_min2[:,j], gl_min_id[:,j], gl_sign[:,j], signs, row_os * block_weight, block_weight, j, block_size, i)
-
                     current_data = numpy.roll(current_data, Hqc[j, i], axis=0)
                     sum_tmp = vn_global(sum_tmp, current_data)
             vn_sums[:,i] = sum_tmp
-    
+        if numpy.sum(gl_sign) == 0 and numpy.sum(numpy.dot(full_H, numpy.reshape(vn_sums.transpose(), (-1)) < 0) % 2) == 0:
+            break
+
+   
     #print(gl_sign)
     return 1 * (numpy.reshape(vn_sums.transpose(), (-1)) < 0)
 
