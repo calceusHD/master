@@ -25,6 +25,8 @@ entity fsm is
 		res : in std_logic;
 		start : in std_logic;
 		no_error : in std_logic;
+		new_iteration : out std_logic;
+		first_iter : out std_logic;
 
 		row_end : out std_logic;
 		col_end : out std_logic;
@@ -78,6 +80,8 @@ begin
     min_offset <= current_inst.min_offset;
     roll <= current_inst.roll;
 
+	new_iteration <= '1' when inst_read_addr = 0 else '0';
+
 	process (clk)
 	begin
 		if rising_edge(clk) then
@@ -105,8 +109,8 @@ begin
 	begin
 		if rising_edge(clk) then
 			if state = FSM_WORK then
-				--current_inst <= unpack(INSTRUCTIONS(to_integer(inst_read_addr)));
                 if inst_read_addr = INSTRUCTIONS'high then
+					first_iter <= '0';
 					if no_error = '1' then
                     	done_int <= '1';
 					else
@@ -116,6 +120,7 @@ begin
                     inst_read_addr <= inst_read_addr + 1;
                 end if;
             else
+				first_iter <= '1';
                 done_int <= '0';
                 inst_read_addr <= (others => '0');
             end if;

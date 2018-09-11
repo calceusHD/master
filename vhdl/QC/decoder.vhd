@@ -21,7 +21,7 @@ end entity;
 architecture base of decoder is
     signal offset : min_id_t;
 	signal roll : roll_t;
-	signal row_end, col_end, no_error : std_logic;
+	signal row_end, col_end, no_error, new_iteration, first_iter : std_logic;
 	signal llr_mem_rd, result_wr, store_cn_wr, load_cn_rd, store_vn_wr, load_vn_rd, store_signs_wr, load_signs_rd : std_logic;
 	signal load_min, load_min2, store_min, store_min2 : min_array_t;
 	signal load_min_id, store_min_id : min_id_array_t;
@@ -33,7 +33,25 @@ architecture base of decoder is
 	signal store_cn_addr, load_cn_addr : col_addr_t;
 	signal store_result : min_signs_t;
 	signal store_signs_addr, load_signs_addr : signs_addr_t;
+
 begin
+
+	process (clk)
+	begin
+		if rising_edge(clk) then
+			if store_cn_wr = '1' then
+				if unsigned(store_sign) /= 0 then
+					no_error <= '0';
+				end if;
+			end if;
+			if new_iteration = '1' then
+				no_error <= '1';
+			end if;
+			if first_iter = '1' then
+				no_error <= '0';
+			end if;
+		end if;
+	end process;
 	
 	gen_result : for i in store_result'range generate
 		store_result(i) <= '1' when  store_col_sum(i) < 0 else '0';
@@ -45,6 +63,8 @@ begin
 		res => res,
 		start => end_in,
 		no_error => no_error,
+		new_iteration => new_iteration,
+		first_iter => first_iter,
 		row_end => row_end,
 		col_end => col_end,
 		llr_mem_rd => llr_mem_rd,
