@@ -42,7 +42,7 @@ begin
 		
 		file_open(test_data, "../../test.txt", read_mode);
 		wr_in <= '1';
-		for i in 0 to 65 loop
+		while not endfile(test_data) loop
 			report "test";
 			readline(test_data, in_line);
 			read_llr_column(in_line, llr_temp);
