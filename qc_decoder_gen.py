@@ -16,13 +16,13 @@ def generate_addr_pair(name, val, d, length):
     return rv
 
 
-llr_bits = 6
+llr_bits = 8
 
 block_vector = numpy.zeros(27, dtype='intc')
 block_vector[0] = 1
 #block_vector[5] = 1
 
-block_size = 127
+block_size = 27
 
 block_weight = numpy.sum(block_vector)
 
@@ -40,7 +40,7 @@ Hqc = numpy.array([
     [25, -1,  8, -1, 23, 18, -1, 14,  9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0],
     [ 3, -1, -1, -1, 16, -1, -1,  2, 25,  5, -1, -1,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0]])
 
-Hqc = numpy.load("test_mat.npy")
+#Hqc = numpy.load("test_mat.npy")
 
 max_col_weight = block_weight * numpy.max(numpy.sum(Hqc >= 0, axis=0))
 max_row_weight = block_weight * numpy.max(numpy.sum(Hqc >= 0, axis=1))
@@ -105,7 +105,7 @@ def generate_inst_list(Hqc):
                 else:
                     store_vn_addr = -1
 
-                insts.append((False, new_col, i if new_col else - 1, store_vn_addr, -1, j, store_vn_addr, -1, -1, sign_offset[j, i], 0, Hqc[j, i]))
+                insts.append((False, new_col, i if new_col else - 1, store_vn_addr, -1, j, store_vn_addr, -1, -1, sign_offset[j, i], row_offsets[j, i] * block_weight, Hqc[j, i]))
                 new_col = False
     rv = []
     insts.append((False, False, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0))
