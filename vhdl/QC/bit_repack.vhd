@@ -18,11 +18,11 @@ entity bit_repack is
 end entity;
 
 architecture base of bit_repack is
-	signal bit_store : std_logic_vector(2 * in_bits'length - 1 downto 0);
+	signal bit_store : std_logic_vector(out_bits'length + in_bits'length - 1 downto 0);
 	signal out_wr_int : std_logic;
 	signal store_cnt : unsigned(7 downto 0) := (others => '0');
 	signal in_rdy_int : std_logic := '0';
-	signal zero_pad : std_logic_vector(in_bits'range) := (others => '0');
+	signal zero_pad : std_logic_vector(out_bits'range) := (others => '0');
 begin
 	out_wr <= out_wr_int;
 	in_rdy <= in_rdy_int;
