@@ -28,10 +28,15 @@ begin
 			if wr_en = '1' then
 				memory(to_integer(unsigned(wr_addr))) <= wr_data;
 			end if;
+        end if;
+    end process;
 
-			if rd_en = '1' then
+    process (clk)
+    begin
+        if rising_edge(clk) then
+            --if rd_en = '1' then
 				rd_data_reg <= memory(to_integer(unsigned(rd_addr)));
-			end if;
+			--end if;
 		end if;
 	end process;
 end architecture;
