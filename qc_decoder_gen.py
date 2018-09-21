@@ -16,7 +16,7 @@ def generate_addr_pair(name, val, d, length):
     return rv
 
 
-llr_bits = 8
+llr_bits = 7
 
 block_vector = numpy.zeros(27, dtype='intc')
 block_vector[0] = 1

@@ -26,6 +26,7 @@ architecture base of axi_decoder is
     signal llr_vec : std_logic_vector(llr_rep'length * llr_rep(0)'length -1 downto 0);
     signal result : min_signs_t;
     signal res_rd : std_logic;
+	signal end_in : std_logic;
 begin
     --s_tready <= '1';
     s_wr <= s_tvalid and s_tready_int;
@@ -45,13 +46,16 @@ begin
         res => res,
         llr_in => llr_rep,
         wr_in => llr_wr,
-        end_in => s_tlast,
+        end_in => end_in,
         res_out => result,
         res_rd => res_rd,
         res_end => m_tlast
     );
 
     slave_repack : entity work.bit_repack
+	generic map (
+		LAST_WORD_PADDING => 3
+	)
     port map (
         clk => clk,
         res => res,
@@ -59,8 +63,10 @@ begin
         out_bits => llr_vec,
         in_rdy => s_tready_int,
         in_wr => s_wr,
+		in_last => s_tlast,
         out_rdy => '1',
-        out_wr => llr_wr
+        out_wr => llr_wr,
+		out_last => end_in
     );
 
     master_repack : entity work.bit_repack
@@ -71,6 +77,7 @@ begin
         out_bits => m_tdata,
         in_rdy => res_rd,
         in_wr => res_rd,
+		in_last => m_tlast,
         out_rdy => m_tready,
         out_wr => m_tvalid
     );

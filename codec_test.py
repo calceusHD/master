@@ -96,7 +96,7 @@ for fc in range(0, frame_count):
     
     for i in range(0, test.shape[0]):
         for j in range(0, test.shape[1]):
-            f.write(to_twoscomplement(test[i,j],8))
+            f.write(to_twoscomplement(test[i,j],7))
             print(testM[i, j], end='')
         print('')
         f.write("\n")
