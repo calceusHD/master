@@ -24,7 +24,7 @@ end entity;
 
 architecture base of bit_repack is
 	signal bit_store : std_logic_vector(out_bits'length + in_bits'length - 1 downto 0);
-	signal out_wr_int : std_logic;
+	signal out_wr_int, out_last_int : std_logic;
 	signal store_cnt : unsigned(12 downto 0) := (others => '0');
 	signal in_rdy_int : std_logic := '0';
 	signal zero_pad : std_logic_vector(out_bits'range) := (others => '0');
@@ -32,9 +32,10 @@ architecture base of bit_repack is
 begin
 	out_wr <= out_wr_int;
 	in_rdy <= in_rdy_int;
+	out_last <= out_last_int;
 
 	in_rdy_int <= '1' when in_bits'length <= bit_store'length + out_bits'length - store_cnt  and res = '0' and flusing = '0' else '0';
-	
+	out_last_int <= '1' when flusing = '1' and store_cnt = LAST_WORD_PADDING else '0';
 	
 	process (clk)
 		variable store_cnt_tmp : unsigned(store_cnt'range);
@@ -44,8 +45,8 @@ begin
 			if in_last = '1' then
 				flusing <= '1';
 			end if;
-			if out_last = '1' then
-				out_last <= '0';
+			if out_last_int = '1' then
+				--out_last_int <= '0';
 			end if;
 			bit_store_tmp := bit_store;
 			store_cnt_tmp := store_cnt;
@@ -61,14 +62,14 @@ begin
 				bit_store_tmp := bit_store_tmp or std_logic_vector(shift_right(unsigned(in_bits & zero_pad), to_integer(store_cnt_tmp)));
 				store_cnt_tmp := store_cnt_tmp + in_bits'length;
 			end if;
-			if flusing = '1' and store_cnt_tmp = LAST_WORD_PADDING then
+			if flusing = '1' and store_cnt = LAST_WORD_PADDING then
 				store_cnt_tmp := (others => '0');
 				flusing <= '0';
-				out_last <= '1';
+				--out_last_int <= '1';
 			end if;
 			if res = '1' then
 				flusing <= '0';
-				out_last <= '0';
+				--out_last_int <= '0';
 				bit_store <= (others => '0');
 			else
 				bit_store <= bit_store_tmp;
