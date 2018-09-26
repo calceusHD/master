@@ -74,6 +74,8 @@ begin
 				end if;
             end loop;
 		end loop;
+		wait for 10 ns;
+		s_tlast <= '0';
 		s_tvalid <= '0';
         wait;
 	end process;
