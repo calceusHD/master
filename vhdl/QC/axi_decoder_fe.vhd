@@ -25,10 +25,25 @@ architecture base of axi_decoder is
     signal llr_rep : llr_column_t;
     signal llr_vec : std_logic_vector(llr_rep'length * llr_rep(0)'length -1 downto 0);
     signal result : min_signs_t;
-    signal res_rd : std_logic;
+    signal res_rd, res_end, res_done, res_rdy : std_logic;
 	signal end_in : std_logic;
+	signal readout : std_logic := '0';
 begin
     --s_tready <= '1';
+
+	process (clk)
+	begin
+		if rising_edge(clk) then
+			if res_done = '1' then
+				readout <= '1';
+			elsif res_end = '1' then
+				readout <= '0';
+			end if;
+		end if;
+	end process;
+
+	res_rd <= readout and res_rdy;
+
     s_wr <= s_tvalid and s_tready_int;
     s_tready <= s_tready_int;
 
@@ -36,7 +51,7 @@ begin
         constant start : natural := (i+1) * llr_rep(0)'length - 1;
         constant stop : natural := i * llr_rep(0)'length;
     begin
-        llr_rep(i) <= 
+        llr_rep(llr_rep'length - i - 1) <= 
                      signed(llr_vec(start downto stop));
     end generate;
 
@@ -49,12 +64,13 @@ begin
         end_in => end_in,
         res_out => result,
         res_rd => res_rd,
-        res_end => m_tlast
+        res_end => res_end,
+		res_done => res_done
     );
 
     slave_repack : entity work.bit_repack
 	generic map (
-		LAST_WORD_PADDING => 3
+		LAST_WORD_PADDING => 8
 	)
     port map (
         clk => clk,
@@ -70,16 +86,20 @@ begin
     );
 
     master_repack : entity work.bit_repack
+	generic map (
+		LAST_WORD_PADDING => 30
+	)
     port map (
         clk => clk,
         res => res,
         in_bits => result,
         out_bits => m_tdata,
-        in_rdy => res_rd,
+        in_rdy => res_rdy,
         in_wr => res_rd,
-		in_last => m_tlast,
+		in_last => res_end,
         out_rdy => m_tready,
-        out_wr => m_tvalid
+        out_wr => m_tvalid,
+		out_last => m_tlast
     );
 
 
