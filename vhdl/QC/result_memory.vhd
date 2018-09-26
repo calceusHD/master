@@ -31,9 +31,11 @@ begin
             if res = '1' then
                 read_addr <= (others => '0');
             else
+				res_end <= '0';
                 if res_rd = '1' then
                     read_addr <= read_addr + 1;
                     if read_addr = HQC_COLUMNS then
+						res_end <= '1';
                         read_addr <= (others => '0');
                     end if;
                 end if;

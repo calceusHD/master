@@ -13,13 +13,19 @@ architecture test of decoder_tb is
     signal clk, res, wr_in, end_in, res_rd : std_logic := '0';
     signal llr_in : llr_column_t;
     
-    procedure read_llr_column(variable line_in : inout line; rv : out llr_column_t) is
+    procedure read_llr_column(variable line_in : inout line; rv : out llr_column_t; good : out boolean) is
+		variable good_rv, good_tmp : boolean := true;
+
     begin
         for i in rv'range loop
-            read(line_in, rv(i));
+            read(line_in, rv(i), good_tmp);
+			if not good_tmp then
+				good_rv := false;
+			end if;
         end loop;
+		good := good_rv;
     end procedure;
-        
+      
     file test_data : text;
 begin
 
@@ -32,6 +38,7 @@ begin
     process
         variable in_line : line;
         variable llr_temp : llr_column_t;
+		variable good : boolean := true;
     begin
         res <= '1';
 		wait for 10 ns;
@@ -42,10 +49,10 @@ begin
 		
 		file_open(test_data, "../../test.txt", read_mode);
 		wr_in <= '1';
-		while not endfile(test_data) loop
+		readline(test_data, in_line);
+		while good loop
 			report "test";
-			readline(test_data, in_line);
-			read_llr_column(in_line, llr_temp);
+			read_llr_column(in_line, llr_temp, good);
 			llr_in <= llr_temp;
 			wait for 10 ns;
 		end loop;

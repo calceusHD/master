@@ -27,6 +27,7 @@ entity fsm is
 		no_error : in std_logic;
 		new_iteration : out std_logic;
 		first_iter : out std_logic;
+		done : out std_logic;
 
 		row_end : out std_logic;
 		col_end : out std_logic;
@@ -79,7 +80,8 @@ begin
     load_signs_addr <= current_inst.load_signs_addr;
     min_offset <= current_inst.min_offset;
     roll <= current_inst.roll;
-
+	
+	done <= done_int;
 	new_iteration <= '1' when inst_read_addr = 0 else '0';
 
 	process (clk)

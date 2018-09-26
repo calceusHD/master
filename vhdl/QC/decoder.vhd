@@ -13,8 +13,8 @@ entity decoder is
 		end_in : in std_logic;
 		res_out : out min_signs_t;
 		res_rd : in std_logic;
-		res_end : out std_logic
-
+		res_end : out std_logic;
+		res_done : out std_logic
 	);
 end entity;
 
@@ -65,6 +65,8 @@ begin
 		no_error => no_error,
 		new_iteration => new_iteration,
 		first_iter => first_iter,
+		done => res_done,
+
 		row_end => row_end,
 		col_end => col_end,
 		llr_mem_rd => llr_mem_rd,
