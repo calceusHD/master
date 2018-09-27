@@ -24,6 +24,7 @@ architecture base of decoder is
 	signal row_end, col_end, no_error, new_iteration, first_iter : std_logic;
 	signal llr_mem_rd, result_wr, store_cn_wr, load_cn_rd, store_vn_wr, load_vn_rd, store_signs_wr, load_signs_rd : std_logic;
 	signal load_min, load_min2, store_min, store_min2 : min_array_t;
+	signal offset_min, offset_min2 : min_array_t;
 	signal load_min_id, store_min_id : min_id_array_t;
 	signal load_sign, store_sign : min_signs_t;
 	signal load_signs, store_signs : signs_t;
@@ -33,7 +34,7 @@ architecture base of decoder is
 	signal store_cn_addr, load_cn_addr : col_addr_t;
 	signal store_result : min_signs_t;
 	signal store_signs_addr, load_signs_addr : signs_addr_t;
-
+	signal min_offset : min_t := (0 => '1', others => '0');
 begin
 
 	process (clk)
@@ -54,7 +55,7 @@ begin
 	end process;
 	
 	gen_result : for i in store_result'range generate
-		store_result(i) <= '1' when  store_col_sum(i) < 0 else '0';
+		store_result(i) <= '1' when store_col_sum(i) < 0 else '0';
 	end generate;
 
 	fsm_inst : entity work.fsm
@@ -151,11 +152,27 @@ begin
 		data_in => roll_cn_global,
 		row_end => row_end,
 		offset => offset,
-		min_out => store_min, 
-		min2_out => store_min2,
+		min_out => offset_min, 
+		min2_out => offset_min2,
 		min_id_out => store_min_id,
 		sign_out => store_sign,
 		signs_out => store_signs
+	);
+
+	--do some offset min sum
+
+	offset_inst : entity work.min_offset
+	port map (
+		offset => min_offset,
+		min_in => offset_min,
+		min_out => store_min
+	);
+	
+	offset2_inst : entity work.min_offset
+	port map (
+		offset => min_offset,
+		min_in => offset_min2,
+		min_out => store_min2
 	);
 
 	--now follows the memory
