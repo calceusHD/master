@@ -52,8 +52,9 @@ Hqc = numpy.array([
     [25, -1,  8, -1, 23, 18, -1, 14,  9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0],
     [ 3, -1, -1, -1, 16, -1, -1,  2, 25,  5, -1, -1,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0]])
 
-
-H = encode.qc_to_pcm(Hqc, 27)
+block_vector = numpy.zeros(27, dtype=Hqc.dtype)
+block_vector[0] = 1
+H = encode.qc_to_pcm(Hqc, block_vector)
 tmp = (H, 27)
 print("returned\n", tmp)
 pre = encode.encode_precompute(tmp[0], tmp[1])
