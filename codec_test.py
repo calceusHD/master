@@ -82,7 +82,7 @@ for fc in range(0, frame_count):
     #print(M.shape)
     #channel
     e = numpy.random.standard_normal(M.shape) * SIGMA
-    X = M + e
+    X = M# + e
 
 
     #decoding
@@ -99,7 +99,7 @@ for fc in range(0, frame_count):
             f.write(to_twoscomplement(test[i,j],7))
             print(testM[i, j], end='')
         print('')
-        f.write("\n")
+        #f.write("\n")
     
     LLR = numpy.reshape(test, (-1, 1))
     #print(LLR.shape)
