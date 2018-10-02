@@ -107,7 +107,7 @@ begin
 		offset => offset
 	);
 
-	roll_1 : entity work.dynamic_roll(log2)
+	roll_1 : entity work.dynamic_roll(mux2)
 	generic map (
 		DIRECTION => false
 	)
@@ -136,7 +136,7 @@ begin
 		data_out => vn_local_roll
 	);
 	
-	roll_2 : entity work.dynamic_roll(log2)
+	roll_2 : entity work.dynamic_roll(mux2)
 	generic map (
 		DIRECTION => true
 	)

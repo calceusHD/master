@@ -27,7 +27,7 @@ begin
 		wait;
 	end process;
 
-	dut : entity work.dynamic_roll(log2)
+	dut : entity work.dynamic_roll(mux2)
 	generic map (
 		DIRECTION => false
 	)

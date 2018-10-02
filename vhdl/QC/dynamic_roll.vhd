@@ -45,7 +45,7 @@ begin
 
 end architecture;
 
-architecture log2 of dynamic_roll is
+architecture mux2 of dynamic_roll is
 	type temp_type is array(0 to roll_count'length) of llr_array_t;
 	signal temp : temp_type;
 begin
@@ -64,3 +64,4 @@ begin
 	end generate;
 	data_out <= temp(temp'length-1);
 end architecture;
+
