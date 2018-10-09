@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import numpy
-from scipy.linalg import lu, circulant
+from scipy.linalg import lu, circulant, solve_triangular
 from numpy.linalg import matrix_rank
 
 def calculate_G(Hin):
@@ -105,7 +105,7 @@ def encode_precompute(H_alt, gap):
 
 def encode_ast(pre, s):
     As = numpy.matmul(pre["A"], numpy.transpose(s)) % 2
-    TAs = numpy.linalg.solve(pre["T"], As).astype(s.dtype) % 2
+    TAs = solve_triangular(pre["T"], As, lower=True).astype(s.dtype) % 2
     ETAs = numpy.matmul(-pre["E"], TAs) % 2
     Cs = numpy.matmul(pre["C"], numpy.transpose(s)) % 2
     ETAsCs = (ETAs + Cs) % 2
@@ -113,7 +113,7 @@ def encode_ast(pre, s):
 
     Bp1 = numpy.matmul(pre["B"], p1) % 2
     AsBp1 = (As + Bp1) % 2
-    p2 = -numpy.linalg.solve(pre["T"], AsBp1).astype(s.dtype) % 2
+    p2 = -solve_triangular(pre["T"], AsBp1, lower=True).astype(s.dtype) % 2
     return numpy.concatenate((numpy.transpose(s), p1, p2))
 
 
