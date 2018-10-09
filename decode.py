@@ -43,7 +43,7 @@ def vn_global(sum_in, data_in):
 def vn_local(column_sum, data_in):
     return numpy.array([column_sum,]*data_in.shape[1]).transpose() - data_in
 
-def decode_qc(X, Hqc, block_vector):
+def decode_qc(X, Hqc, block_vector, factor, supp):
     block_size = block_vector.shape[0]
     block_weight = numpy.sum(block_vector)
     vn_sums = numpy.zeros((block_size, Hqc.shape[1]), dtype=X.dtype)
@@ -61,7 +61,8 @@ def decode_qc(X, Hqc, block_vector):
 
     full_H = encode.qc_to_pcm(Hqc, block_vector)
     
-    for it in range(0, 10):
+    for it in range(0, 20):
+        
         #we start with the global check node calculation
         if it > 0:
             for i in range(0, Hqc.shape[0]):
@@ -70,6 +71,7 @@ def decode_qc(X, Hqc, block_vector):
                 min_id_tmp = numpy.zeros(block_size, dtype=block_vector.dtype)
                 sign_tmp = numpy.zeros(block_size, dtype=block_vector.dtype)
                 row_os = 0
+                supp_tmp = numpy.zeros(block_size, dtype=block_vector.dtype)
                 for j in range(0, Hqc.shape[1]):
                     if Hqc[i, j] >= 0:
                         current_data = cn_local(gl_min[:,i], gl_min2[:,i], gl_min_id[:,i], gl_sign[:,i], signs, row_os * block_weight, block_weight, i, block_size, j)
@@ -79,10 +81,13 @@ def decode_qc(X, Hqc, block_vector):
                         min_tmp, min2_tmp, min_id_tmp, sign_tmp, sign_res = cn_global(min_tmp, min2_tmp, min_id_tmp, sign_tmp, block_vector, current_data, j * block_weight)
                         signs[i * block_size:(i + 1) * block_size, row_os * block_weight:(row_os + 1) * block_weight] = sign_res
                         row_os += 1
+
+                        supp_tmp = (supp_tmp + vn_sums[:,j] < 0) % 2
                 
                 #when we collect all data from a row we write it to the global arrays
-                gl_min[:,i] = min_tmp
-                gl_min2[:,i] = min2_tmp
+                #print(sign_tmp)
+                gl_min[:,i] = min_tmp * factor * (supp * supp_tmp +  1 - supp_tmp)
+                gl_min2[:,i] = min2_tmp * factor * (supp * supp_tmp + 1 - supp_tmp)
                 gl_min_id[:,i] = min_id_tmp
                 gl_sign[:,i] = sign_tmp
             #print(numpy.sum(gl_sign), numpy.sum(numpy.dot(full_H, numpy.reshape(vn_sums.transpose(), (-1)) < 0) % 2))
