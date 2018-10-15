@@ -169,20 +169,16 @@ begin
 		signs_out => store_signs
 	);
 
-	--do some offset min sum
-
-	offset_inst : entity work.min_offset
+	--do some mangling of the min
+	mangle_inst : entity work.min_mangle
 	port map (
-		offset => min_offset,
+		val_1 => min_offset,
+		val_2 => min_offset,
+		hard_cn_res => hard_cn_res,
 		min_in => offset_min,
-		min_out => store_min
-	);
-	
-	offset2_inst : entity work.min_offset
-	port map (
-		offset => min_offset,
-		min_in => offset_min2,
-		min_out => store_min2
+		min2_in => offset_min2,
+		min_out => store_min,
+		min2_out => store_min2
 	);
 
 	--now follows the memory
