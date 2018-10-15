@@ -22,7 +22,7 @@ block_vector = numpy.zeros(27, dtype='intc')
 block_vector[0] = 1
 #block_vector[5] = 1
 
-block_size = 27#200#81 #27
+block_size = 27 #200#81 #27
 
 block_weight = numpy.sum(block_vector)
 """

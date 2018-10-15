@@ -35,13 +35,14 @@ architecture base of decoder is
 	signal store_result : min_signs_t;
 	signal store_signs_addr, load_signs_addr : signs_addr_t;
 	signal min_offset : min_t := (0 => '1', others => '0');
+	signal hard_cn_res : min_signs_t;
 begin
 
 	process (clk)
 	begin
 		if rising_edge(clk) then
 			if store_cn_wr = '1' then
-				if unsigned(store_sign) /= 0 then
+				if unsigned(hard_cn_res) /= 0 then
 					no_error <= '0';
 				end if;
 			end if;
@@ -54,6 +55,15 @@ begin
 		end if;
 	end process;
 	
+	message_accu_inst : entity work.message_accu
+	port map (
+		clk => clk,
+		roll_count => roll,
+		col_sum => load_col_sum,
+		row_end => row_end,
+		xor_out => hard_cn_res
+	);
+
 	gen_result : for i in store_result'range generate
 		store_result(i) <= '1' when store_col_sum(i) < 0 else '0';
 	end generate;

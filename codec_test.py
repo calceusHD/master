@@ -80,10 +80,10 @@ SIGMA = math.sqrt(.25 / ebn0)
 err_count = 0
 bit_err_count = 0
 bit_err_count2 = 0
-frame_count = 500
+frame_count = 1
 
 #print(H)
-#f = open("test.txt", "w")
+f = open("test.txt", "w")
 
 def to_twoscomplement(value, bits):
     if value < 0:
@@ -101,14 +101,14 @@ for fc in range(0, frame_count):
     #print(M.shape)
     #channel
     e = numpy.random.standard_normal(M.shape) * SIGMA
-    X = M + e
+    X = M #+ e
 
 
     #decoding
     
     LLR = (1 - 2 * X) / (2 * SIGMA)
-    """
-    test = numpy.reshape(LLR, (-1, block_vector.shape[0])) * 10
+    
+    test = numpy.reshape(LLR, (-1, block_vector.shape[0])) * 5
     test = test.astype(int)
 
     testM = numpy.reshape(M, (-1, block_vector.shape[0]))
@@ -119,7 +119,7 @@ for fc in range(0, frame_count):
             print(testM[i, j], end='')
         print('')
         #f.write("\n")
-    
+    """   
     LLR = numpy.reshape(test, (-1, 1))
     """
     #print(LLR.shape)
@@ -141,7 +141,7 @@ for fc in range(0, frame_count):
 fc += 1
 print(sys.argv[1], sys.argv[2], sys.argv[3], err_count / fc, bit_err_count / fc / M.shape[0])
 
-#f.close()
+f.close()
 
 #print("U:", U)
 #print("G:", G)
