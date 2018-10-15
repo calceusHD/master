@@ -76,8 +76,8 @@ architecture mux4 of dynamic_roll is
         for i in LOG_MAX_MUX downto 1 loop
             rv := rv + temp / i;
             temp := temp mod i;
-            report "rv:" & integer'image(rv);
-            report "temp:" & integer'image(temp);
+            --report "rv:" & integer'image(rv);
+            --report "temp:" & integer'image(temp);
         end loop;
         return rv;
     end function;
@@ -90,7 +90,7 @@ architecture mux4 of dynamic_roll is
             for j in LOG_MAX_MUX downto 1 loop
                 if temp + j <= roll_count'length then
                     temp := temp + j;
-                    report "j:" & integer'image(j);
+                    --report "j:" & integer'image(j);
                     cur_width := j;
                     temp_w := j;
                     exit;
@@ -116,9 +116,9 @@ begin
                     variable offset, cur_width : integer;
                 begin
                     calc_loop(bit_id, offset, cur_width);
-                    report integer'image(cur_width);
-                    report integer'image(offset);
-                    report integer'image(bit_id);
+                    --report integer'image(cur_width);
+                    --report integer'image(offset);
+                    --report integer'image(bit_id);
                     for k in 0 to 2 ** cur_width loop
                         if k = to_integer(roll_count(cur_width + offset - 1 downto offset)) then
                             rv := temp(bit_id)((i + k * (2 ** offset)) mod data_in'length, j);
