@@ -5,18 +5,18 @@ use IEEE.math_real.all;
 use work.common.all;
 
 -- we need some sigals...  LUL some, more like a metric ton
-/*
-	so the task for this fsm is to wait until a complete set of data is received and the start the decoding process
-	the decoding process has no additional dependencies except the signal that tells us if the errors are corrected and we shall stop. Otherwise the complete set of signal for each step of the decoding process will be read from memory
-	vn_mem address read / write seperate?
-	vn_mem read / write enable
-	vn_global step reset
-	
-	vn_sum write address
-	vn_sum read / write enable
-	
-	global check node / global variable node connection control
-*/
+
+--	so the task for this fsm is to wait until a complete set of data is received and the start the decoding process
+--	the decoding process has no additional dependencies except the signal that tells us if the errors are corrected and we shall stop. Otherwise the complete set of signal for each step of the decoding process will be read from memory
+--	vn_mem address read / write seperate?
+--	vn_mem read / write enable
+--	vn_global step reset
+--	
+--	vn_sum write address
+--	vn_sum read / write enable
+--	
+--	global check node / global variable node connection control
+
 
 
 entity fsm is
@@ -48,7 +48,9 @@ entity fsm is
 		load_signs_rd : out std_logic;
 		load_signs_addr : out signs_addr_t;
 		min_offset : out min_id_t;
-		roll : out roll_t
+		roll : out roll_t;
+		
+		max_iter : in unsigned(7 downto 0)
 	);
 end entity;
 
@@ -58,6 +60,7 @@ architecture base of fsm is
 	type states_t is (FSM_IDLE, FSM_WORK);
 	signal state : states_t := FSM_IDLE;
     signal done_int : std_logic;
+    signal current_iter : unsigned(7 downto 0);
 begin
 
     row_end <= current_inst.row_end;
@@ -113,15 +116,17 @@ begin
 			if state = FSM_WORK then
                 if inst_read_addr = INSTRUCTIONS'high then
 					first_iter <= '0';
-					if no_error = '1' then
+					if no_error = '1' or current_iter = max_iter then
                     	done_int <= '1';
 					else
 						inst_read_addr <= (others => '0');
+						current_iter <= current_iter + 1;
 					end if;
                 else
                     inst_read_addr <= inst_read_addr + 1;
                 end if;
             else
+                current_iter <= (others => '0');
 				first_iter <= '1';
                 done_int <= '0';
                 inst_read_addr <= (others => '0');

@@ -15,6 +15,7 @@ architecture test of axi_decoder_fe_tb is
 	signal s_tvalid, s_tlast, s_tready, m_tready : std_logic;
 	signal s_tdata : std_logic_vector(31 downto 0) := (others => '0');
 	signal out_bits : std_logic_vector(20 downto 0);
+	signal max_iter, param_1, param_2 : std_logic_vector(31 downto 0);
 
     procedure read_padded_vec(variable line_in : inout line; rv : out std_logic_vector; good : out boolean) is
         variable good_int : boolean := True;
@@ -31,6 +32,10 @@ architecture test of axi_decoder_fe_tb is
 
     file test_data : text;
 begin
+    max_iter <= std_logic_vector(to_unsigned(2, 32));
+    param_1 <= std_logic_vector(to_unsigned(0, 32));
+    param_2 <= std_logic_vector(to_unsigned(0, 32));
+    
 	process
 	begin
 		wait for 5 ns;
@@ -90,12 +95,15 @@ begin
 	dut : entity work.axi_decoder
 	port map (
 		clk => clk,
-		res => res,
+		res_e => res,
 		s_tvalid => s_tvalid,
 		s_tlast => s_tlast,
 		s_tdata => s_tdata,
 		s_tready => s_tready,
-		m_tready => m_tready
+		m_tready => m_tready,
+		max_iter => max_iter,
+		param_1 => param_1,
+		param_2 => param_2
 	);
 
 end architecture;

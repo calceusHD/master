@@ -14,7 +14,11 @@ entity decoder is
 		res_out : out min_signs_t;
 		res_rd : in std_logic;
 		res_end : out std_logic;
-		res_done : out std_logic
+		res_done : out std_logic;
+		
+		max_iter : in std_logic_vector(31 downto 0);
+		param_1 : in std_logic_vector(31 downto 0);
+		param_2 : in std_logic_vector(31 downto 0)
 	);
 end entity;
 
@@ -97,7 +101,9 @@ begin
 		load_signs_rd => load_signs_rd,
 		load_signs_addr => load_signs_addr,
 		min_offset => offset,
-		roll => roll
+		roll => roll,
+		
+		max_iter => unsigned(max_iter(7 downto 0))
 	);
 
 
@@ -172,8 +178,8 @@ begin
 	--do some mangling of the min
 	mangle_inst : entity work.min_mangle
 	port map (
-		val_1 => min_offset,
-		val_2 => min_offset,
+		val_1 => unsigned(param_1(min_offset'range)),
+		val_2 => unsigned(param_2(min_offset'range)),
 		hard_cn_res => hard_cn_res,
 		min_in => offset_min,
 		min2_in => offset_min2,

@@ -7,7 +7,7 @@ use work.common.all;
 entity axi_decoder is
     port (
         clk : in std_logic;
-        res : in std_logic;
+        res_e : in std_logic;
         s_tvalid : in std_logic;
         s_tlast : in std_logic;
         s_tdata : in std_logic_vector(31 downto 0);
@@ -15,12 +15,14 @@ entity axi_decoder is
         m_tvalid : out std_logic;
         m_tlast : out std_logic;
         m_tdata : out std_logic_vector(31 downto 0);
-        m_tready : in std_logic
+        m_tready : in std_logic;
+        
+        max_iter, param_1, param_2 : in std_logic_vector(31 downto 0)
     );
 end entity;
 
 architecture base of axi_decoder is
-    signal s_wr, s_tready_int : std_logic;
+    signal s_wr, s_tready_int, res : std_logic;
     signal llr_wr : std_logic;
     signal llr_rep : llr_column_t;
     signal llr_vec : std_logic_vector(llr_rep'length * llr_rep(0)'length -1 downto 0);
@@ -30,6 +32,7 @@ architecture base of axi_decoder is
 	signal readout : std_logic := '0';
 begin
     --s_tready <= '1';
+    res <= param_1(31) or res_e;
 
 	process (clk)
 	begin
@@ -65,7 +68,10 @@ begin
         res_out => result,
         res_rd => res_rd,
         res_end => res_end,
-		res_done => res_done
+		res_done => res_done,
+		max_iter => max_iter,
+		param_1 => param_1,
+		param_2 => param_2
     );
 
     slave_repack : entity work.bit_repack
@@ -87,7 +93,7 @@ begin
 
     master_repack : entity work.bit_repack
 	generic map (
-		LAST_WORD_PADDING => 30
+		LAST_WORD_PADDING => 8
 	)
     port map (
         clk => clk,
