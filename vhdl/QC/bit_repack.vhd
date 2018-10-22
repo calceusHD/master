@@ -71,10 +71,12 @@ begin
 				flusing <= '0';
 				--out_last_int <= '0';
 				bit_store <= (others => '0');
+				store_cnt <= (others => '0');
 			else
 				bit_store <= bit_store_tmp;
+				store_cnt <= store_cnt_tmp;
 			end if;
-			store_cnt <= store_cnt_tmp;
+			
 
 
 		end if;
