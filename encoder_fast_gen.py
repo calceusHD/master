@@ -10,12 +10,12 @@ def gen_matmul(in_name, out_name, A):
         tmp = []
         for j in range(0, A.shape[1]):
             if A[i, j] == 1:
-                tmp.append(in_name + "(" + str(j) + ")")
+                tmp.append(in_name + "(" + str(A.shape[1] - j - 1) + ")")
         if len(tmp) == 0:
             line = "'0'"
         else:
             line = " XOR ".join(tmp)
-        line = "    " + out_name + "(" + str(i) + ") <= " + line + ";\n"
+        line = "    " + out_name + "(" + str(A.shape[0] - i - 1) + ") <= " + line + ";\n"
         result += line
     return result
 
@@ -23,15 +23,15 @@ def gen_backsub(in_name, out_name, T):
     result = ""
     for i in range(0, T.shape[0]):
         tmp = []
-        tmp.append(in_name + "(" + str(i) + ")")
+        tmp.append(in_name + "(" + str(T.shape[0] - i - 1) + ")")
         for j in range(0, i - 1):
             if T[i, j] == 1:
-                tmp.append(out_name + "(" + str(j) + ")")
+                tmp.append(out_name + "(" + str(T.shape[1] - j - 1) + ")")
         if len(tmp) == 0:
             print("WTF?")
         else:
             line = " XOR ".join(tmp)
-        line = "    " + out_name + "(" + str(i) + ") <= " + line + ";\n"
+        line = "    " + out_name + "(" + str(T.shape[0] - i - 1) + ") <= " + line + ";\n"
         result += line
     return result
 
@@ -120,7 +120,7 @@ out_file.write(gen_matmul("p1", "Bp1", pre["B"]))
 out_file.write("    AsBp1 <= As XOR Bp1;\n")
 out_file.write(gen_backsub("AsBp1", "p2", - pre["T"] % 2))
 
-out_file.write("    bits_out <= p2 & p1 & bits_in;\n")
+out_file.write("    bits_out <= bits_in & p1 & p2;\n")
 
 
 header = """library IEEE;
