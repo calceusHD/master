@@ -12,7 +12,7 @@ end entity;
 
 architecture test of axi_decoder_fe_tb is
 	signal clk, res : std_logic := '0';
-	signal s_tvalid, s_tlast, s_tready, m_tready : std_logic;
+	signal s_tvalid, s_tlast, s_tready, m_tready : std_logic := '0';
 	signal s_tdata : std_logic_vector(31 downto 0) := (others => '0');
 	signal out_bits : std_logic_vector(20 downto 0);
 	signal max_iter, param_1, param_2 : std_logic_vector(31 downto 0);
@@ -46,14 +46,15 @@ begin
         variable in_line : line;
         variable vec_temp : std_logic_vector(s_tdata'range);
         variable good : boolean := true;
+        variable count : integer := 0;
 	begin
 		res <= '1';
 		wait for 10 ns;
 		res <= '0';
-        wait for 15 ns;
+        wait for 16 ns;
 
 		file_open(test_data, "../../test.txt", read_mode);
- 		s_tvalid <= '1';
+ 		
         while not endfile(test_data) loop
             report "start loop";
             readline(test_data, in_line);
@@ -61,8 +62,11 @@ begin
             while good loop
                 report "start inner loop";
                 read_padded_vec(in_line, vec_temp, good);
+                --vec_temp := std_logic_vector(to_unsigned(count, 32));
+                count := count + 1;
 				wait for 10 ns;
 				s_tlast <= '0';
+				s_tvalid <= '1';
 				while s_tready /= '1' loop
 					wait for 10 ns;
 					report "looperooni";
@@ -80,7 +84,7 @@ begin
             end loop;
 		end loop;
 		wait for 10 ns;
-		s_tlast <= '0';
+		--s_tlast <= '0';
 		s_tvalid <= '0';
         wait;
 	end process;

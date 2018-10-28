@@ -24,18 +24,16 @@ architecture base of result_memory is
     signal read_addr : unsigned(addr_bits-1 downto 0);
     signal write_data, read_data : std_logic_vector(min_signs_t'range);
 begin
-
+    res_end <= '1' when read_addr = HQC_COLUMNS-1 else '0';
     process (clk)
     begin
         if rising_edge(clk) then
             if res = '1' then
                 read_addr <= (others => '0');
             else
-				res_end <= '0';
                 if res_rd = '1' then
                     read_addr <= read_addr + 1;
-                    if read_addr = HQC_COLUMNS then
-						res_end <= '1';
+                    if read_addr = HQC_COLUMNS-1 then
                         read_addr <= (others => '0');
                     end if;
                 end if;
@@ -47,6 +45,9 @@ begin
     res_out <= read_data;
 
     mem : entity work.generic_ram
+    generic map (
+        DOUBLE_REGISER => false
+    )
     port map (
         clk => clk,
         wr_en => wr_in,

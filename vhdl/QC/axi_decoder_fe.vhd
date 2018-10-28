@@ -27,8 +27,8 @@ architecture base of axi_decoder is
     signal llr_rep : llr_column_t;
     signal llr_vec : std_logic_vector(llr_rep'length * llr_rep(0)'length -1 downto 0);
     signal result : min_signs_t;
-    signal res_rd, res_end, res_done, res_rdy : std_logic;
-	signal end_in : std_logic;
+    signal res_rd, res_end, res_done, res_rdy, rd_mem : std_logic;
+	signal end_in, in_wr, in_last, in_valid, res_end_reg : std_logic;
 	signal readout : std_logic := '0';
 begin
     --s_tready <= '1';
@@ -42,13 +42,12 @@ begin
 			elsif res_end = '1' then
 				readout <= '0';
 			end if;
+		res_rd <= readout and res_rdy;
+		res_end_reg <= res_end;
 		end if;
 	end process;
 
-	res_rd <= readout and res_rdy;
-
-    s_wr <= s_tvalid and s_tready_int;
-    s_tready <= s_tready_int;
+	rd_mem <= readout and res_rdy;
 
     remap_gen : for i in llr_rep'range generate
         constant start : natural := (i+1) * llr_rep(0)'length - 1;
@@ -63,10 +62,10 @@ begin
         clk => clk,
         res => res,
         llr_in => llr_rep,
-        wr_in => llr_wr,
-        end_in => end_in,
+        wr_in => in_valid,
+        end_in => in_last,
         res_out => result,
-        res_rd => res_rd,
+        res_rd => rd_mem,
         res_end => res_end,
 		res_done => res_done,
 		max_iter => max_iter,
@@ -74,7 +73,7 @@ begin
 		param_2 => param_2
     );
 
-    slave_repack : entity work.bit_repack
+    slave_repack : entity work.axi_repack
 	generic map (
 		LAST_WORD_PADDING => 8
 	)
@@ -83,15 +82,15 @@ begin
         res => res,
         in_bits => s_tdata,
         out_bits => llr_vec,
-        in_rdy => s_tready_int,
-        in_wr => s_wr,
+        in_ready => s_tready,
+		in_valid => s_tvalid,
 		in_last => s_tlast,
-        out_rdy => '1',
-        out_wr => llr_wr,
-		out_last => end_in
-    );
+		out_ready => '1',
+		out_valid => in_valid,
+		out_last => in_last	
+	);
 
-    master_repack : entity work.bit_repack
+    master_repack : entity work.axi_repack
 	generic map (
 		LAST_WORD_PADDING => 8
 	)
@@ -100,13 +99,13 @@ begin
         res => res,
         in_bits => result,
         out_bits => m_tdata,
-        in_rdy => res_rdy,
-        in_wr => res_rd,
-		in_last => res_end,
-        out_rdy => m_tready,
-        out_wr => m_tvalid,
+        in_ready => res_rdy,
+		in_valid => res_rd,
+		in_last => res_end_reg,
+		out_ready => m_tready,
+		out_valid => m_tvalid,
 		out_last => m_tlast
-    );
+	);
 
 
 end architecture;

@@ -23,16 +23,17 @@ architecture base of llr_in_memory is
 	constant addr_bits : natural := integer(ceil(log2(real(HQC_COLUMNS))));
 	signal write_addr : unsigned(addr_bits-1 downto 0);
     signal write_data, read_data : std_logic_vector(llr_column_t'length * llr_in(0)'length - 1 downto 0);
+    signal wr_in_int : std_logic;
 begin
 
-
+    wr_in_int <= wr_in and (not end_in); -- the repack thingy outputs the last bits in it but we dont care about the last partial inval
 	process (clk)
 	begin
 		if rising_edge(clk) then
-			if res = '1' then
+			if res = '1' or end_in = '1' then
                 write_addr <= (others => '0');
             else
-                if wr_in = '1' then
+                if wr_in_int = '1' then
                     write_addr <= write_addr + 1;
                 end if;
             end if;
@@ -51,7 +52,7 @@ begin
     mem : entity work.generic_ram
     port map (
         clk => clk,
-        wr_en => wr_in,
+        wr_en => wr_in_int,
         wr_data => write_data,
         wr_addr => write_addr,
         rd_en => rd_in,

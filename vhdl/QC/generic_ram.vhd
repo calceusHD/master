@@ -5,6 +5,9 @@ use IEEE.math_real.all;
 use work.common.all;
 
 entity generic_ram is
+    generic (
+        DOUBLE_REGISER : boolean := true
+    );
 	port (
 		clk : in std_logic;
 		wr_en : in std_logic;
@@ -24,13 +27,27 @@ begin
 	process (clk)
 	begin
 		if rising_edge(clk) then
-            rd_data <= rd_data_reg;
+            
 			if wr_en = '1' then
 				memory(to_integer(unsigned(wr_addr))) <= wr_data;
 			end if;
         end if;
     end process;
-
+    
+    double_reg : if DOUBLE_REGISER generate
+    process (clk)
+    begin
+        if rising_edge(clk) then
+            rd_data <= rd_data_reg;
+        end if;
+    end process;
+    end generate;
+    
+    normal_reg : if not DOUBLE_REGISER generate
+        rd_data <= rd_data_reg;
+    end generate;
+    
+    
     process (clk)
     begin
         if rising_edge(clk) then
