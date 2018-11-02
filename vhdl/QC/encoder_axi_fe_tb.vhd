@@ -11,9 +11,10 @@ entity axi_encoder_fe_tb is
 end entity;
 
 architecture test of axi_encoder_fe_tb is
-	signal clk, res : std_logic := '0';
-	signal s_tvalid, s_tlast, s_tready, m_tready, m_tvalid, m_tlast, m_tready_2, m_tvalid_2, m_tlast_2, m_tready_3 : std_logic := '0';
-	signal s_tdata, m_tdata, m_tdata_2 : std_logic_vector(31 downto 0) := (others => '0');
+	signal clk, res, do_gen : std_logic := '0';
+	signal s_tvalid, s_tlast, s_tready, m_tvalid1, m_tvalid2, m_tready, m_tvalid, m_tlast, m_tready_2, m_tvalid_2, m_tlast_2, m_tready_3, m_tlast_3, m_tvalid_3, s2_tvalid, s2_tready, m_tready2, m_tready1, fifo_cmp_tlast, fifo_cmp_tready, fifo_cmp_tvalid : std_logic := '0';
+	signal s_tdata, m_tdata, m_tdata_2, m_tdata_3, fifo_cmp_tdata : std_logic_vector(31 downto 0) := (others => '0');
+	signal s2_tdata : std_logic_vector(15 downto 0) := (others => '0');
 	signal out_bits : std_logic_vector(20 downto 0);
 	signal max_iter, param_1, param_2 : std_logic_vector(31 downto 0);
 
@@ -32,7 +33,7 @@ architecture test of axi_encoder_fe_tb is
 
     file test_data : text;
 begin
-    max_iter <= std_logic_vector(to_unsigned(2, 32));
+    max_iter <= std_logic_vector(to_unsigned(5, 32));
     param_1 <= std_logic_vector(to_unsigned(0, 32));
     param_2 <= std_logic_vector(to_unsigned(0, 32));
     
@@ -51,9 +52,14 @@ begin
 		res <= '1';
 		wait for 10 ns;
 		res <= '0';
-        wait for 16 ns;
-		--while true loop
-		file_open(test_data, "../../test3.txt", read_mode);
+        wait for 15.01 ns;
+		do_gen <= '1';
+		wait;
+	end process;
+/*		
+		while true loop
+		count := count + 12345;
+		file_open(test_data, "../../test.txt", read_mode);
  		
         while not endfile(test_data) loop
             report "start loop";
@@ -63,19 +69,18 @@ begin
                 report "start inner loop";
                 read_padded_vec(in_line, vec_temp, good);
                 --vec_temp := std_logic_vector(to_unsigned(count, 32));
-                count := count + 1;
 				wait for 10 ns;
 				s_tlast <= '0';
 				s_tvalid <= '1';
 				while s_tready /= '1' loop
 					wait for 10 ns;
-					report "looperooni";
+					--report "looperooni";
 				end loop;
                 report "got clock";
                 --in_wr <= '0';
                 --wait on ckl until in_rdy = '1';
                 report "got ready";
-                s_tdata <= vec_temp;
+                s_tdata <= std_logic_vector(unsigned(vec_temp) + count);
 				if not good then
 					s_tlast <= '1';
 				else
@@ -84,21 +89,50 @@ begin
             end loop;
 		end loop;
 		file_close(test_data);
-		--end loop;
+		end loop;
 		wait for 10 ns;
 		--s_tlast <= '0';
 		s_tvalid <= '0';
         wait;
 	end process;
+*/
+	process
+	begin
+		wait until res = '0';
+		wait for 16 ns;
+		while True loop
+			wait for 10 ns;
+			s2_tvalid <= '1';
+			while s2_tready /= '1' loop
+				wait for 10 ns;
+			end loop;
+			s2_tdata <= std_logic_vector(unsigned(s2_tdata) + 0);
+		end loop;
+	end process;
 
 	process
 	begin
 		wait for 20 ns;
-		m_tready_3 <= '1';
+		--m_tready_3 <= '1';
 		wait;
 	end process;
 
-	dut : entity work.axi_encoder
+	data_gen : entity work.tausworthe
+	generic map (
+		BLOCK_LENGTH => 11
+	)
+	port map (
+		clk => clk,
+		res_e => res,
+		do_gen => do_gen,
+		m_tvalid => s_tvalid,
+		m_tlast => s_tlast,
+		m_tdata => s_tdata,
+		m_tready => s_tready,
+		preload_data => x"1234acbd"
+	);
+
+	encode : entity work.axi_encoder
 	port map (
 		clk => clk,
 		res_e => res,
@@ -112,24 +146,32 @@ begin
 		m_tready => m_tready
 	);
 
-	dut_2 : entity work.bit_to_signed
+	m_tready <= m_tready1 and m_tready2;
+	m_tvalid1 <= m_tready2 and m_tvalid;
+	m_tvalid2 <= m_tready1 and m_tvalid;
+
+	convert_bits : entity work.bit_to_signed
 	generic map (
-		BIT_VAL => 1
+		BIT_VAL => 5
 	)
 	port map (
 		clk => clk,
 		res_e => res,
-		s_tvalid => m_tvalid,
+		s_tvalid => m_tvalid1,
 		s_tlast => m_tlast,
 		s_tdata => m_tdata,
-		s_tready => m_tready,
+		s_tready => m_tready1,
+		s2_tvalid => s2_tvalid,
+		s2_tlast => '0',
+		s2_tdata => s2_tdata,
+		s2_tready => s2_tready,
 		m_tvalid => m_tvalid_2,
 		m_tlast => m_tlast_2,
 		m_tdata => m_tdata_2,
 		m_tready => m_tready_2
 	);
 
-	dut_3 : entity work.axi_decoder
+	decode : entity work.axi_decoder
 	port map (
 		clk => clk,
 		res_e => res,
@@ -137,11 +179,43 @@ begin
 		s_tlast => m_tlast_2,
 		s_tdata => m_tdata_2,
 		s_tready => m_tready_2,
+		m_tvalid => m_tvalid_3,
+		m_tlast => m_tlast_3,
+		m_tdata => m_tdata_3,
 		m_tready => m_tready_3,
+
 		max_iter => max_iter,
 		param_1 => param_1,
 		param_2 => param_2
 	);
 
+	fifo : entity work.axi_fifo
+	port map (
+		clk => clk,
+		res => res,
+		s_tvalid => m_tvalid2,
+		s_tdata => m_tdata,
+		s_tlast => m_tlast,
+		s_tready => m_tready2,
+		m_tvalid => fifo_cmp_tvalid,
+		m_tlast => fifo_cmp_tlast,
+		m_tdata => fifo_cmp_tdata,
+		m_tready => fifo_cmp_tready
+	);
+
+	compare : entity work.axi_cmp
+	port map (
+		clk => clk,
+		res_e => res,
+		s_tvalid => m_tvalid_3,
+		s_tlast => m_tlast_3,
+		s_tdata => m_tdata_3,
+		s_tready => m_tready_3,
+		s2_tvalid => fifo_cmp_tvalid,
+		s2_tlast => fifo_cmp_tlast,
+		s2_tdata => fifo_cmp_tdata,
+		s2_tready => fifo_cmp_tready,
+		m_tready => '0'
+	);
 
 end architecture;

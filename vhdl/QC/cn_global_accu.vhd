@@ -17,7 +17,8 @@ entity cn_global_accu is
 		min_id_out : out min_id_array_t;
 		sign_out : out min_signs_t;
 
-		signs_out : out signs_t
+		signs_out : out signs_t;
+		first_iteration : in std_logic
 	);
 end entity;
 
@@ -27,10 +28,10 @@ architecture base of cn_global_accu is
 	signal sign_acc, sign_res : min_signs_t;
 begin
 
-	min_out <=  min_res;
-	min2_out <= min2_res;
-	min_id_out <= min_id_res;
-	sign_out <= sign_res;
+	min_out <=  min_res when first_iteration = '0' else (others => (others => '0'));
+	min2_out <= min2_res when first_iteration = '0' else (others => (others => '0'));
+	min_id_out <= min_id_res when first_iteration = '0' else (others => (others => '0'));
+	sign_out <= sign_res when first_iteration = '0' else (others => '0');
 
 	process (clk) 
 	begin

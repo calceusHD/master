@@ -140,7 +140,7 @@ begin
 	)
 	port map (
 		roll_count => roll,
-		data_in => cn_local_roll_reg,
+		data_in => cn_local_roll,
 		data_out => roll_vn
 	);
 
@@ -186,14 +186,15 @@ begin
 	cn_global_inst : entity work.cn_global_accu
 	port map (
 		clk => clk,
-		data_in => roll_cn_global_reg,
+		data_in => roll_cn_global,
 		row_end => row_end,
-		offset => offset_reg_reg,
+		offset => offset,
 		min_out => offset_min, 
 		min2_out => offset_min2,
 		min_id_out => store_min_id,
 		sign_out => store_sign,
-		signs_out => store_signs
+		signs_out => store_signs,
+		first_iteration => first_iter
 	);
 
 	--do some mangling of the min

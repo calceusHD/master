@@ -19,6 +19,7 @@ end entity;
 architecture base of cn_local is
     signal signless_rv : llr_array_t;
 begin
+
     gen_i : for i in signless_rv'range(1) generate
     begin
         gen_j : for j in signless_rv'range(2) generate
