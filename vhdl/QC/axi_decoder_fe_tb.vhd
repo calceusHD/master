@@ -32,7 +32,7 @@ architecture test of axi_decoder_fe_tb is
 
     file test_data : text;
 begin
-    max_iter <= std_logic_vector(to_unsigned(2, 32));
+    max_iter <= std_logic_vector(to_unsigned(5, 32));
     param_1 <= std_logic_vector(to_unsigned(0, 32));
     param_2 <= std_logic_vector(to_unsigned(0, 32));
     
@@ -51,9 +51,9 @@ begin
 		res <= '1';
 		wait for 10 ns;
 		res <= '0';
-        wait for 16 ns;
+        wait for 15.01 ns;
 
-		file_open(test_data, "../../test.txt", read_mode);
+		file_open(test_data, "../../test2.txt", read_mode);
  		
         while not endfile(test_data) loop
             report "start loop";
