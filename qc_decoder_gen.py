@@ -22,7 +22,7 @@ block_vector = numpy.zeros(27, dtype='intc')
 block_vector[0] = 1
 #block_vector[5] = 1
 
-block_size = 27 #200#81 #27
+block_size =27# 200#81 #27
 
 block_weight = numpy.sum(block_vector)
 """
@@ -107,6 +107,8 @@ def generate_inst_list(Hqc):
     row_end = (Hqc >= 0).cumsum(1).argmax(1)
     
     insts.append((False, False, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0))
+    insts.append((False, False, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0))
+    insts.append((False, False, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0))
     for i in range(0, Hqc.shape[0]):
         new_row = True
         for j in range(0, Hqc.shape[1]):
@@ -136,20 +138,20 @@ def generate_inst_list(Hqc):
     insts.append((False, False, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0))
     insts.append((False, False, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0))
     insts.append((False, False, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0))
-    print(len(insts))
+    print("generated", len(insts), "instructions")
     for i in range(0, len(insts)-2):
-        row_end =           insts[i + 0 - 2][0]
-        col_end =           insts[i + 0 - 1][1]
-        llr_mem_addr =      insts[i + 2 - 1][2]
-        result_addr =       insts[i + 0 - 1][3]
-        store_cn_addr =     insts[i - 1 - 2][4]
+        row_end =           insts[i + 0][0]
+        col_end =           insts[i + 0][1]
+        llr_mem_addr =      insts[i + 2][2]
+        result_addr =       insts[i + 0][3]
+        store_cn_addr =     insts[i - 1][4]
         load_cn_addr =      insts[i + 1][5]
-        store_vn_addr =     insts[i - 1 - 1][6]
-        load_vn_addr =      insts[i + 1 - 1][7]
-        store_signs_addr =  insts[i - 1 - 2][8]
+        store_vn_addr =     insts[i - 1][6]
+        load_vn_addr =      insts[i + 1][7]
+        store_signs_addr =  insts[i - 1][8]
         load_signs_addr =   insts[i + 1][9]
         min_offset =        insts[i - 1][10]
-        roll =              insts[i - 1 - 1][11]
+        roll =              insts[i - 1][11]
         rv.append("pack(" + generate_inst(row_end, col_end, llr_mem_addr, result_addr, store_cn_addr, load_cn_addr, store_vn_addr, load_vn_addr, store_signs_addr, load_signs_addr, min_offset, roll) + ")")
     rv = ",\n".join(rv)
     return rv, len(insts)-2
