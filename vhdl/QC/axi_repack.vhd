@@ -39,7 +39,7 @@ begin
 	out_valid <= out_valid_int;
 	out_last <= out_last_int;
 	
-	in_ready_int <= '1' when in_bits'length <= bit_store'length + out_bits'length - store_cnt  and res = '0' and flusing = '0' else '0';
+	in_ready_int <= '1' when ((in_bits'length <= bit_store'length + out_bits'length - store_cnt and  do_out_shift = '1') or (in_bits'length <= bit_store'length - store_cnt)) and res = '0' and flusing = '0' else '0';
 	
 	out_valid_int <= '1' when (out_last_int = '1' or store_cnt >= out_bits'length) else '0';
 	out_last_int <= '1' when flusing = '1' and store_cnt = LAST_WORD_PADDING else '0';
