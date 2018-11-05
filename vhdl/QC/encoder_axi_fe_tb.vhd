@@ -12,7 +12,7 @@ end entity;
 
 architecture test of axi_encoder_fe_tb is
 	signal clk, res, do_gen : std_logic := '0';
-	signal s_tvalid, s_tlast, s_tready, m_tvalid1, m_tvalid2, m_tready, m_tvalid, m_tlast, m_tready_2, m_tvalid_2, m_tlast_2, m_tready_3, m_tlast_3, m_tvalid_3, s2_tvalid, s2_tready, m_tready2, m_tready1, fifo_cmp_tlast, fifo_cmp_tready, fifo_cmp_tvalid : std_logic := '0';
+	signal s_tvalid, s_tlast, s_tready, m_tvalid1, m_tready_out, m_tvalid2, m_tready, m_tvalid, m_tlast, m_tready_2, m_tvalid_2, m_tlast_2, m_tready_3, m_tlast_3, m_tvalid_3, s2_tvalid, s2_tready, m_tready2, m_tready1, fifo_cmp_tlast, fifo_cmp_tready, fifo_cmp_tvalid : std_logic := '0';
 	signal s_tdata, m_tdata, m_tdata_2, m_tdata_3, fifo_cmp_tdata : std_logic_vector(31 downto 0) := (others => '0');
 	signal s2_tdata : std_logic_vector(15 downto 0) := (others => '0');
 	signal out_bits : std_logic_vector(20 downto 0);
@@ -106,7 +106,7 @@ begin
 			while s2_tready /= '1' loop
 				wait for 10 ns;
 			end loop;
-			s2_tdata <= std_logic_vector(unsigned(s2_tdata) + 0);
+			s2_tdata <= std_logic_vector(unsigned(s2_tdata) + 3);
 		end loop;
 	end process;
 
@@ -168,7 +168,8 @@ begin
 		m_tvalid => m_tvalid_2,
 		m_tlast => m_tlast_2,
 		m_tdata => m_tdata_2,
-		m_tready => m_tready_2
+		m_tready => m_tready_2,
+		sigma_inv => (others => '0')
 	);
 
 	decode : entity work.axi_decoder
@@ -189,7 +190,21 @@ begin
 		param_2 => param_2
 	);
 
+	process
+	begin
+        m_tready_out <= '0';
+        wait for 15 us;
+        wait for 5 ns;
+        m_tready_out <= '1';
+        wait for 2 us;
+        m_tready_out <= '0';
+        wait;
+    end process;
+
 	fifo : entity work.axi_fifo
+	generic map (
+        g_DEPTH => 512
+    )
 	port map (
 		clk => clk,
 		res => res,
@@ -215,7 +230,7 @@ begin
 		s2_tlast => fifo_cmp_tlast,
 		s2_tdata => fifo_cmp_tdata,
 		s2_tready => fifo_cmp_tready,
-		m_tready => '0'
+		m_tready => m_tready_out
 	);
 
 end architecture;
