@@ -23,17 +23,12 @@ entity axi_repack is
 end entity;
 
 architecture base of axi_repack is
-    attribute mark_debug : string;
-    attribute keep : string;
 	signal bit_store : std_logic_vector(out_bits'length + in_bits'length - 1 downto 0);
 	signal store_cnt : unsigned(12 downto 0) := (others => '0');
 	signal in_ready_int, out_valid_int : std_logic := '0';
 	signal zero_pad : std_logic_vector(out_bits'range) := (others => '0');
 	signal flusing : std_logic := '0';
 	signal do_in_shift, do_out_shift, out_last_int : std_logic;
-	
-	attribute mark_debug of store_cnt : signal is "true";
-	attribute mark_debug of flusing : signal is "true";
 begin
 	in_ready <= in_ready_int;
 	out_valid <= out_valid_int;
