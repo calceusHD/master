@@ -6,7 +6,8 @@ use work.common.all;
 
 entity generic_ram is
     generic (
-        DOUBLE_REGISER : boolean := true
+        DOUBLE_REGISER : boolean := true;
+        NO_REGISTER : boolean := false
     );
 	port (
 		clk : in std_logic;
@@ -47,14 +48,20 @@ begin
         rd_data <= rd_data_reg;
     end generate;
     
+    no_reg : if NO_REGISTER generate
+        rd_data_reg <= memory(to_integer(unsigned(rd_addr)));
+    end generate;
     
-    process (clk)
-    begin
-        if rising_edge(clk) then
-            --if rd_en = '1' then
-				rd_data_reg <= memory(to_integer(unsigned(rd_addr)));
-			--end if;
-		end if;
-	end process;
+    no_reg_not : if not NO_REGISTER generate
+        process (clk)
+        begin
+            if rising_edge(clk) then
+                --if rd_en = '1' then
+                    rd_data_reg <= memory(to_integer(unsigned(rd_addr)));
+                --end if;
+            end if;
+        end process;
+    end generate;
+    
 end architecture;
 
