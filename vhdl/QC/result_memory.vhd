@@ -46,7 +46,8 @@ begin
 
     mem : entity work.generic_ram
     generic map (
-        DOUBLE_REGISER => false
+        DOUBLE_REGISER => false,
+        NO_REGISTER => true
     )
     port map (
         clk => clk,
