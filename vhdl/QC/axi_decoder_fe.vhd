@@ -31,27 +31,33 @@ architecture base of axi_decoder is
 	signal end_in, in_wr, in_last, in_valid, res_end_reg : std_logic;
 	signal readout : std_logic := '0';
 	signal decoder_ready : std_logic := '1';
+	signal has_reg : std_logic := '0';
 begin
     --s_tready <= '1';
-    res <= param_1(31) or res_e;
-
+    res <= res_e;
+    
+    
 	process (clk)
 	begin
 		if rising_edge(clk) then
-			if res_done = '1' then
+            if res = '1' then
+                readout <= '0';
+			elsif res_done = '1' then
 				readout <= '1';
 			elsif res_end = '1' then
 				readout <= '0';
 			end if;
-		res_rd <= readout and res_rdy;
+            
 		res_end_reg <= res_end;
 		end if;
 	end process;
-	
+	res_rd <= readout and res_rdy;
 	process (clk)
 	begin
         if rising_edge(clk) then
-            if in_last = '1' then
+            if res = '1' then
+                decoder_ready <= '1';
+            elsif in_last = '1' then
                 decoder_ready <= '0';
             elsif res_end_reg = '1' then
                 decoder_ready <= '1';
@@ -114,7 +120,7 @@ begin
         out_bits => m_tdata,
         in_ready => res_rdy,
 		in_valid => res_rd,
-		in_last => res_end_reg,
+		in_last => res_end,
 		out_ready => m_tready,
 		out_valid => m_tvalid,
 		out_last => m_tlast
