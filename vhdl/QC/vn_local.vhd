@@ -4,6 +4,8 @@ use IEEE.numeric_std.all;
 use IEEE.math_real.all;
 use work.common.all;
 
+--use IEEE.fixed_pkg.all;
+use work.fixed_generic_pkg_mod.all;
 entity vn_local is
     port (
        col_sum : in column_sum_array_t;
@@ -18,14 +20,9 @@ begin
     gen_i : for i in data_in'range(1) generate
     begin
         gen_j : for j in data_in'range(2) generate
-            signal temp : column_sum_t;
+            
         begin
-            temp <= col_sum(i) - data_in(i, j);
-            sat : entity work.saturate
-            port map (
-                data_in => temp,
-                data_out => data_out(i, j)
-            );
+            data_out(i, j) <= to_signed(to_sfixed(col_sum(i)) - to_sfixed(data_in(i, j)), data_out(i, j)'length);
         end generate;
     end generate;
 
