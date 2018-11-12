@@ -7,9 +7,6 @@ use work.common.all;
 
 
 entity bit_to_signed is
-	generic (
-		BIT_VAL : integer
-	);
     port (
         clk : in std_logic;
         res_e : in std_logic;
@@ -19,13 +16,14 @@ entity bit_to_signed is
         s_tready : out std_logic;
 		s2_tvalid : in std_logic;
 		s2_tlast : in std_logic;
-		s2_tdata : in std_logic_vector(15 downto 0);
+		s2_tdata : in std_logic_vector((26)*2-1 downto 0);
 		s2_tready : out std_logic;
         m_tvalid : out std_logic;
         m_tlast : out std_logic;
         m_tdata : out std_logic_vector(31 downto 0);
         m_tready : in std_logic;
-        sigma_inv : in std_logic_vector(31 downto 0)
+        sigma_inv : in std_logic_vector(31 downto 0);
+        bit_val : in std_logic_vector(6 downto 0)
     );
 end entity;
 
@@ -40,9 +38,11 @@ begin
 
 	oof : for i in 0 to 1 generate
 		signal tmp : sfixed(6 downto 0);
+		signal awgn : sfixed(5 + LLR_BITS downto -20 + LLR_BITS);
 	begin
-		tmp <= (to_sfixed(-BIT_VAL, 6, 0)) when bits_in(i) = '1' else (to_sfixed(BIT_VAL, 6, 0));
-		bits_out((i+1) * 7-1 downto i * 7) <= std_logic_vector(resize(to_sfixed(sigma_inv, 4, -27) * (tmp + to_sfixed(s2_tdata((i+1) * 7 -1 downto i *7), 6, 0)), 6, 0));
+		tmp <= resize(-to_sfixed(bit_val, 6, 0), tmp) when bits_in(i) = '1' else (to_sfixed(bit_val, 6, 0));
+		awgn <= to_sfixed(s2_tdata((i+1) * (26) -1 downto i *(26)), 5 + LLR_BITS, -20 + LLR_BITS);
+		bits_out((i+1) * 7-1 downto i * 7) <= std_logic_vector(resize(to_sfixed(sigma_inv, 4, -27) * (tmp + awgn), LLR_BITS-1, 0));
 	end generate;
 
 	slave_repack : entity work.axi_repack

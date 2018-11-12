@@ -3,8 +3,8 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use IEEE.math_real.all;
 use work.common.all;
-use IEEE.fixed_pkg.all;
---use work.fixed_generic_pkg_mod.all;
+--use IEEE.fixed_pkg.all;
+use work.fixed_generic_pkg_mod.all;
 
 entity axi_rng is
     generic (
@@ -17,7 +17,7 @@ entity axi_rng is
         preload_data : in std_logic_vector(31 downto 0);
         m_tvalid : out std_logic;
         m_tlast : out std_logic;
-        m_tdata : out std_logic_vector(PARALLEL * LLR_BITS-1 downto 0);
+        m_tdata : out std_logic_vector(PARALLEL * (26)-1 downto 0);
         m_tready : in std_logic
     );
 end entity;
@@ -66,12 +66,12 @@ begin
             iclk => clk,
             ice => do_clock,
             iloaden => load_en,
-            iloaddata => preload_tmp(0),
+            iloaddata => preload_tmp(i),
             ores => res_slv
         );
         res_signed <= to_sfixed(res_slv, 5, -20);
         res_out <= res_signed * sigma_signed;
-        m_tdata((i+1) * LLR_BITS - 1 downto i * LLR_BITS) <= std_logic_vector(resize(res_out, LLR_BITS-1, 0));
+        m_tdata((i+1) * (26) - 1 downto i * (26)) <= std_logic_vector(resize(res_out, 5 + LLR_BITS, -20 + LLR_BITS));
     end generate;
 end architecture;
         
