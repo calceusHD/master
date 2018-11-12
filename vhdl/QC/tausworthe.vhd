@@ -5,9 +5,6 @@ use IEEE.math_real.all;
 use work.common.all;
 
 entity tausworthe is
-    generic (
-        BLOCK_LENGTH : positive
-    );
     port (
         clk : in std_logic;
         res_e : in std_logic;
@@ -56,12 +53,13 @@ begin
             elsif m_tready = '1' and m_tvalid_int = '1' then
                 if m_tlast_int = '1' then
                     m_tlast_int <= '0';
+                    do_gen_reg <= do_gen;
                 else
                     block_counter <= block_counter + 1;
                 end if;
-                if block_counter = BLOCK_LENGTH-2 then
+                if block_counter = RNG_WORDS-2 then
                     block_counter <= (others => '0');
-                    do_gen_reg <= do_gen;
+                    
                     m_tlast_int <= '1';
                 end if;
             end if;

@@ -54,6 +54,8 @@ begin
 		res <= '0';
         wait for 15.01 ns;
 		do_gen <= '1';
+		wait for 100 ns;
+		do_gen <= '0';
 		wait;
 	end process;
 /*		
@@ -118,9 +120,6 @@ begin
 	end process;
 
 	data_gen : entity work.tausworthe
-	generic map (
-		BLOCK_LENGTH => 11
-	)
 	port map (
 		clk => clk,
 		res_e => res,
@@ -151,9 +150,6 @@ begin
 	m_tvalid2 <= m_tready1 and m_tvalid;
 
 	convert_bits : entity work.bit_to_signed
-	generic map (
-		BIT_VAL => 5
-	)
 	port map (
 		clk => clk,
 		res_e => res,
@@ -163,13 +159,14 @@ begin
 		s_tready => m_tready1,
 		s2_tvalid => s2_tvalid,
 		s2_tlast => '0',
-		s2_tdata => s2_tdata,
+		s2_tdata => "0000000000000000000000000000000000000000000000000000",
 		s2_tready => s2_tready,
 		m_tvalid => m_tvalid_2,
 		m_tlast => m_tlast_2,
 		m_tdata => m_tdata_2,
 		m_tready => m_tready_2,
-		sigma_inv => (others => '0')
+		sigma_inv => (others => '0'),
+		bit_val => "0000000"
 	);
 
 	decode : entity work.axi_decoder

@@ -18,11 +18,11 @@ def generate_addr_pair(name, val, d, length):
 
 llr_bits = 7
 
-block_vector = numpy.zeros(27, dtype='intc')
+block_size = 27# 200#81 #27
+block_vector = numpy.zeros(block_size, dtype='intc')
 block_vector[0] = 1
 #block_vector[5] = 1
 
-block_size =27# 200#81 #27
 
 block_weight = numpy.sum(block_vector)
 """
@@ -174,8 +174,26 @@ use IEEE.numeric_std.all;
 use IEEE.math_real.all;
 
 package common is\n"""
+#size constats for axi transfer
+encode_bits_in = block_size * (Hqc.shape[1] - Hqc.shape[0])
+encode_bits_out = block_size * Hqc.shape[1]
+rng_words = math.ceil(encode_bits_in / 32)
+rv += "constant RNG_WORDS : natural := " + str(rng_words) + ";\n"
+rv += "constant ENCODE_BITS_IN : natural := " + str(encode_bits_in) + ";\n"
+rv += "constant ENCODE_BITS_OUT : natural := " + str(encode_bits_out) + ";\n"
+rv += "constant ENCODE_SLAVE_PADDING : natural := " + str(rng_words * 32) + ";\n"
+
+encode_words_out = math.ceil(encode_bits_out / 32)
+rv += "constant ENCODE_MASTER_PADDING : natural := " + str(encode_bits_out - 32 * ( encode_words_out-1)) + ";\n"
+rv += "constant BIT_SLAVE_PADDING : natural := " + str(encode_words_out * 32 - encode_bits_out + 2) + ";\n"
+llr_bits_out = encode_bits_out * llr_bits
+llr_words_out = math.ceil(llr_bits_out / 32)
+rv += "constant BIT_MASTER_PADDING : natural := " + str(llr_bits_out - 32 * (llr_words_out - 1)) + ";\n"
+rv += "constant DECODE_SLAVE_PADDING : natural := " + str(32 * llr_words_out - llr_bits_out) + ";\n"
+rv += "constant DECODE_MASTER_PADDING : natural := " + str(encode_bits_out - 32 * ( encode_words_out-1)) + ";\n"
+
 #data transfer array
-rv += "constant LLR_BITS :natural := " + str(llr_bits) + ";\n"
+rv += "constant LLR_BITS : natural := " + str(llr_bits) + ";\n"
 rv += "type llr_row_t is array(0 to " + str(block_weight) + "-1) of signed(" + str(llr_bits) + "-1 downto 0);\n"
 rv += "type llr_array_t is array(0 to " + str(block_size) + "-1, 0  to " + str(block_weight) + "-1) of signed(" + str(llr_bits) + "-1 downto 0);\n"
 rv += "type llr_column_t is array(0 to " + str(block_size) + "-1) of signed(" + str(llr_bits) + "-1 downto 0);\n"

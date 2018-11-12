@@ -47,7 +47,7 @@ begin
 
 	slave_repack : entity work.axi_repack
 	generic map (
-		LAST_WORD_PADDING => 26
+		LAST_WORD_PADDING => BIT_SLAVE_PADDING
 	)
 	port map (
 		clk => clk,
@@ -64,7 +64,7 @@ begin
 
 	master_repack : entity work.axi_repack
 	generic map (
-		LAST_WORD_PADDING => 24
+		LAST_WORD_PADDING => BIT_MASTER_PADDING
 	)
 	port map (
 		clk => clk,

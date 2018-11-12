@@ -44,7 +44,7 @@ begin
                 readout <= '0';
 			elsif res_done = '1' then
 				readout <= '1';
-			elsif res_end = '1' then
+			elsif res_end = '1' and res_rd = '1' and res_rdy = '1' then
 				readout <= '0';
 			end if;
             
@@ -94,7 +94,7 @@ begin
 
     slave_repack : entity work.axi_repack
 	generic map (
-		LAST_WORD_PADDING => 8
+		LAST_WORD_PADDING => DECODE_SLAVE_PADDING
 	)
     port map (
         clk => clk,
@@ -111,7 +111,7 @@ begin
 
     master_repack : entity work.axi_repack
 	generic map (
-		LAST_WORD_PADDING => 8
+		LAST_WORD_PADDING => DECODE_MASTER_PADDING
 	)
     port map (
         clk => clk,

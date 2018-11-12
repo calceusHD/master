@@ -5,7 +5,16 @@ use IEEE.numeric_std.all;
 use IEEE.math_real.all;
 
 package common is
-constant LLR_BITS :natural := 7;
+constant RNG_WORDS : natural := 11;
+constant ENCODE_BITS_IN : natural := 324;
+constant ENCODE_BITS_OUT : natural := 648;
+constant ENCODE_SLAVE_PADDING : natural := 352;
+constant ENCODE_MASTER_PADDING : natural := 8;
+constant BIT_SLAVE_PADDING : natural := 26;
+constant BIT_MASTER_PADDING : natural := 24;
+constant DECODE_SLAVE_PADDING : natural := 8;
+constant DECODE_MASTER_PADDING : natural := 8;
+constant LLR_BITS : natural := 7;
 type llr_row_t is array(0 to 1-1) of signed(7-1 downto 0);
 type llr_array_t is array(0 to 27-1, 0  to 1-1) of signed(7-1 downto 0);
 type llr_column_t is array(0 to 27-1) of signed(7-1 downto 0);

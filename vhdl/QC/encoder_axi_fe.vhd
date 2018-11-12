@@ -20,8 +20,8 @@ entity axi_encoder is
 end entity;
 
 architecture base of axi_encoder is
-	signal bits_in : std_logic_vector(324-1 downto 0);
-	signal bits_out : std_logic_vector(648-1 downto 0);
+	signal bits_in : std_logic_vector(ENCODE_BITS_IN-1 downto 0);
+	signal bits_out : std_logic_vector(ENCODE_BITS_OUT-1 downto 0);
 	signal last, valid, ready : std_logic;
 begin
 
@@ -35,7 +35,7 @@ begin
 
 	slave_repack : entity work.axi_repack
 	generic map (
-		LAST_WORD_PADDING => 352
+		LAST_WORD_PADDING => ENCODE_SLAVE_PADDING
 	)
 	port map (
 		clk => clk,
@@ -52,7 +52,7 @@ begin
 
 	master_repack : entity work.axi_repack
 	generic map (
-		LAST_WORD_PADDING => 8
+		LAST_WORD_PADDING => ENCODE_MASTER_PADDING
 	)
 	port map (
 		clk => clk,
