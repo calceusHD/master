@@ -3,6 +3,7 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use IEEE.math_real.all;
 use work.common.all;
+use work.fixed_generic_pkg_mod.all;
 
 entity vn_global is
     port (
@@ -18,13 +19,17 @@ begin
 	gen_i : for i in data_in'range(1) generate
     begin
 		process (data_in, sum_in)
-			variable tmp : column_sum_t := (others => '0');
+			variable tmp : sfixed(sum_in(0)'range) := (others => '0');
 		begin
 			tmp := (others => '0');
 			gen_j : for j in data_in'range(2) loop
-            	tmp := tmp + resize(data_in(i, j), tmp'length);
+            	tmp := resize(tmp + to_sfixed(data_in(i, j)), tmp);
 			end loop;
-        	sum_out(i) <= tmp + sum_in(i);
+			tmp := resize(tmp + to_sfixed(sum_in(i)), tmp);
+			if tmp = - 2**(sum_out(i)'length-1) then
+                tmp := to_sfixed(- 2**(sum_out(i)'length-1)+1, tmp);
+            end if;
+        	sum_out(i) <= to_signed(tmp, sum_out(i)'length);
 		end process;
     end generate;
 end architecture;

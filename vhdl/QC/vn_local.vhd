@@ -22,7 +22,15 @@ begin
         gen_j : for j in data_in'range(2) generate
             
         begin
-            data_out(i, j) <= to_signed(to_sfixed(col_sum(i)) - to_sfixed(data_in(i, j)), data_out(i, j)'length);
+            process (col_sum(i), data_in(i, j))
+                variable tmp : sfixed(data_in(0, 0)'range);
+            begin
+                tmp := resize(to_sfixed(col_sum(i)) - to_sfixed(data_in(i, j), data_out(i, j)'length), tmp);
+                if tmp = - 2**(data_out(i, j)'length-1) then
+                    tmp := to_sfixed(- 2**(data_out(i, j)'length-1)+1, tmp);
+                end if;
+                data_out(i, j) <= to_signed(tmp, data_out(i, j)'length);
+            end process;
         end generate;
     end generate;
 

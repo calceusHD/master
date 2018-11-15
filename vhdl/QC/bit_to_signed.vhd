@@ -23,7 +23,7 @@ entity bit_to_signed is
         m_tdata : out std_logic_vector(31 downto 0);
         m_tready : in std_logic;
         sigma_inv : in std_logic_vector(31 downto 0);
-        bit_val : in std_logic_vector(6 downto 0)
+        bit_val : in std_logic_vector(15 downto 0)
     );
 end entity;
 
@@ -37,12 +37,12 @@ begin
 	ready_i <= ready_o and valid_o;
 
 	oof : for i in 0 to 1 generate
-		signal tmp : sfixed(6 downto 0);
+		signal tmp : sfixed(6 downto -9);
 		signal awgn : sfixed(5 + LLR_BITS downto -20 + LLR_BITS);
 	begin
-		tmp <= resize(-to_sfixed(bit_val, 6, 0), tmp) when bits_in(i) = '1' else (to_sfixed(bit_val, 6, 0));
+		tmp <= resize(-to_sfixed(bit_val, 6, -9), tmp) when bits_in(i) = '1' else (to_sfixed(bit_val, 6, -9));
 		awgn <= to_sfixed(s2_tdata((i+1) * (26) -1 downto i *(26)), 5 + LLR_BITS, -20 + LLR_BITS);
-		bits_out((i+1) * 7-1 downto i * 7) <= std_logic_vector(resize(to_sfixed(sigma_inv, 4, -27) * (tmp + awgn), LLR_BITS-1, 0));
+		bits_out((i+1) * 7-1 downto i * 7) <= std_logic_vector(resize(to_sfixed(sigma_inv, 6, -25) * (tmp + awgn), LLR_BITS-1, 0));
 	end generate;
 
 	slave_repack : entity work.axi_repack

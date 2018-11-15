@@ -69,7 +69,7 @@ Hqc = numpy.array([
 
 max_col_weight = block_weight * numpy.max(numpy.sum(Hqc >= 0, axis=0))
 max_row_weight = block_weight * numpy.max(numpy.sum(Hqc >= 0, axis=1))
-col_sum_extra = math.ceil(math.log2(max_col_weight))
+col_sum_extra = min(0, math.ceil(math.log2(max_col_weight)))
 row_sum_extra = math.ceil(math.log2(max_row_weight))
 
 print("col_weight:", max_col_weight)
